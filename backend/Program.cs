@@ -33,9 +33,9 @@ builder.Services.Configure<ConfigurationSettings>(builder.Configuration.GetSecti
 // AutoMapper Configuration
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Database Configuration
+// Database Configuration (PostgreSQL)
 builder.Services.AddDbContext<ConfigDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Dependency Injection
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

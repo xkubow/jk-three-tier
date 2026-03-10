@@ -1,26 +1,13 @@
-IF DB_ID('JK_Configurations') IS NULL
-BEGIN
-    CREATE DATABASE JK_Configurations;
-END
-GO
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-USE JK_Configurations;
-GO
+CREATE TABLE IF NOT EXISTS "Configuration" (
+    "Id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "Key" varchar(200) NOT NULL,
+    "Value" varchar(2000) NOT NULL
+);
 
-IF OBJECT_ID('dbo.Configuration', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Configuration
-    (
-        Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-        [Key] NVARCHAR(200) NOT NULL,
-        [Value] NVARCHAR(2000) NOT NULL
-    );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM dbo.Configuration WHERE [Key] = 'HelloWorld')
-BEGIN
-    INSERT INTO dbo.Configuration (Id, [Key], [Value])
-    VALUES (NEWID(), 'HelloWorld', 'Hello from DB');
-END
-GO
+INSERT INTO "Configuration" ("Key", "Value")
+SELECT 'HelloWorld', 'Hello from DB'
+WHERE NOT EXISTS (
+    SELECT 1 FROM "Configuration" WHERE "Key" = 'HelloWorld'
+);
