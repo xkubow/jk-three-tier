@@ -9,6 +9,13 @@ spec:
   rules:
   - http:
       paths:
+      - path: /api/swagger
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8080
       - path: /api
         pathType: Prefix
         backend:

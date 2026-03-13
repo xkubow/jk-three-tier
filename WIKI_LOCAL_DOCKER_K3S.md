@@ -129,17 +129,28 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   ```
 - **Access from Windows**
   1. Find the k3s/WSL node IP (inside WSL):
-     ```bash
-     kubectl get nodes -o wide
-     kubectl get svc -n kube-system traefik
-     ```
-     Use the value in the `INTERNAL-IP` column for your node (e.g. `172.27.76.33`).
-  2. Open the app from Windows using that IP and Traefik’s exposed port (e.g. 8082):
-     ```text
-     http://<INTERNAL-IP>:8082/
-     # example: http://172.27.76.33:8082/
-     ```
- Traefik receives the request on that IP:port and routes via `Ingress` to FE/BE.
+  ```bash
+  kubectl get nodes -o wide
+  kubectl get svc -n kube-system traefik
+  ```
+  Use the value in the `INTERNAL-IP` column for your node (e.g. `172.27.76.33`).
+  2. Open the app from Windows using that IP and Traefik’s exposed port (currently 8089):
+  ```text
+  http://<INTERNAL-IP>:8089/
+  # example: http://172.27.76.33:8089/
+  ```
+  Traefik receives the request on that IP:port and routes via `Ingress` to FE/BE.
+
+- **Headlamp UI via friendly hostname**
+  - Headlamp is exposed through its own ingress (`k8s/headlamp-ingress.yaml`) on the same Traefik entrypoint.
+  - Add this section to `c:\Windows\System32\drivers\etc\hosts` on Windows:
+  ```text
+  172.27.76.33 headlamp.k3s.local
+  ```
+  - Then open Headlamp from Windows at:
+  ```text
+  http://headlamp.k3s.local:8089/
+  ```
 
 ---
 
@@ -246,6 +257,57 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   ```
 
   - Or run `kubectl port-forward` **from Windows** using exported k3s kubeconfig; then `http://localhost:<port>` works normally.
+
+---
+
+#### 3.5 Verifying Postgres persistence (PVC mount)
+
+- **Check that the Postgres pod is using the PVC correctly**:
+
+  ```bash
+  kubectl describe pod -n jk-three-tier -l app=postgres
+  ```
+
+  In the output, find the `Mounts:` section for the `postgres` container. You should see something like:
+
+  ```text
+  Mounts:
+    /var/lib/postgresql/data from postgres-data (rw)
+  ...
+  Volumes:
+    postgres-data:
+      Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+      ClaimName:  postgres-data-pvc
+  ```
+
+- **Enable to use Postgres outside the wsl**
+
+  It is needed to have TCP setting in traefik like in db-ingress-tcp.yaml. Then it's need to be applied
+  ```bash
+  kubectl apply -f k8s/traefik-config.yaml
+  kubectl apply -f k8s/db-ingress-tcp.yaml
+  kubectl delete pod -n kube-system -l app.kubernetes.io/name=traefik
+  kubectl get svc -n kube-system traefik
+  ```
+  We need to see the port 30432 in the list. If not then it need to be applied patch.
+  ```bash
+  kubectl patch svc traefik -n kube-system -p
+  '{"spec":{"ports":[{"name":"web","port":8089,"targetPort":"web"},{"name":"postgres","port":30432,"targetPort":"postgres"},{"name":"websecure","port":443,"targetPort":"websecure"}]}}'
+  ```
+
+- **Test that data survives pod restarts**:
+
+  ```bash
+  # 1) Restart the Postgres pod
+  kubectl delete pod -n jk-three-tier -l app=postgres
+  kubectl get pods -n jk-three-tier   # wait for postgres to be 1/1 Running
+
+  # 2) Verify the data is still there
+  kubectl exec -it -n jk-three-tier <postgres-pod> -- \
+    psql -U postgres -d jk_configurations -c 'SELECT * FROM "Configuration";'
+  ```
+
+  If the `HelloWorld` row is still present, the PVC (`postgres-data-pvc`) is working and your DB is persistent.
 
 ---
 

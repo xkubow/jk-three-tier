@@ -46,11 +46,22 @@ builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseWhen(
+    ctx => ctx.Request.Host.Host == "localhost" 
+        || ctx.Request.Host.Host == "172.27.76.33",
+    branch =>
+    {
+        branch.UseSwagger(c =>
+        {
+            c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+        });
+
+        branch.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("v1/swagger.json", "jk-three-tier API v1");
+            c.RoutePrefix = "api/swagger";
+        });
+    });
 app.UseCors(allowFrontendCorsPolicy);
 
 app.UseHttpsRedirection();
