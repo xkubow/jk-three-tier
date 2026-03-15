@@ -1,0 +1,13 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: postgres-routing
+  namespace: jk-three-tier
+spec:
+  entryPoints:
+    - postgres
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: postgres      # Název tvé DB služby
+      port: 5432          # Port tvé DB služby
