@@ -10,5 +10,5 @@ public class ConfigDbContext : DbContext
     {
     }
 
-    public DbSet<ConfigurationEntity> Configurations { get; set; }
+    public DbSet<ConfigurationEntity> Configuration { get; set; }
 }

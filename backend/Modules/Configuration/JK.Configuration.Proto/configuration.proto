@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+option csharp_namespace = "JK.Configuration.Proto";
+
+package jk.configuration;
+
+import "google/api/annotations.proto";
+
+service ConfigurationGrpc {
+  rpc GetById (GetConfigurationByIdRequest) returns (ConfigurationMessage){
+    option (google.api.http) = {
+      get: "/api/grpc/v1/Configuration/GetById"
+    };
+  };
+  rpc List (ListConfigurationRequest) returns (ListConfigurationResponse){
+    option (google.api.http) = {
+      get: "/api/grpc/v1/Configuration/List"
+    };
+  };
+  rpc Create (CreateConfigurationRequest) returns (ConfigurationMessage){
+    option (google.api.http) = {
+      post: "/api/grpc/v1/Configuration/Create"
+    };
+  };
+  rpc Update (UpdateConfigurationRequest) returns (ConfigurationMessage){
+    option (google.api.http) = {
+      post: "/api/grpc/v1/Configuration/Update"
+    };
+  };
+  rpc Delete (DeleteConfigurationRequest) returns (DeleteConfigurationResponse){
+    option (google.api.http) = {
+      post: "/api/grpc/v1/Configuration/Delete"
+    };
+  };
+}
+
+message ConfigurationMessage {
+  string id = 1;
+  optional string market_code = 2;
+  optional string service_code = 3;
+  string key = 4;
+  string value = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  optional string created_by = 8;
+  optional string updated_by = 9;
+}
+
+message GetConfigurationByIdRequest {
+  string id = 1;
+}
+
+message ListConfigurationRequest {
+  optional string market_code = 1;
+  optional string service_code = 2;
+  optional string search_term = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+  optional string sort_by = 6;
+  string sort_direction = 7;
+}
+
+message ListConfigurationResponse {
+  repeated ConfigurationMessage items = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_count = 4;
+}
+
+message CreateConfigurationRequest {
+  optional string market_code = 1;
+  optional string service_code = 2;
+  string key = 3;
+  string value = 4;
+  optional string created_by = 5;
+}
+
+message UpdateConfigurationRequest {
+  string id = 1;
+  string value = 2;
+  optional string updated_by = 3;
+}
+
+message DeleteConfigurationRequest {
+  string id = 1;
+}
+
+message DeleteConfigurationResponse {
+  bool success = 1;
+}

@@ -19,14 +19,14 @@ public class ConfigurationRepository : IConfigurationRepository
 
     public async Task<IEnumerable<ConfigurationModel>> GetAllAsync()
     {
-        return await _context.Configurations
+        return await _context.Configuration
             .ProjectTo<ConfigurationModel>(_mapper.ConfigurationProvider)
             .ToListAsync();
     }
 
     public async Task<ConfigurationModel?> GetByKeyAsync(string key)
     {
-        return await _context.Configurations
+        return await _context.Configuration
             .Where(c => c.Key == key)
             .ProjectTo<ConfigurationModel>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
