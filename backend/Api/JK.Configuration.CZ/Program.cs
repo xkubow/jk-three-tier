@@ -10,6 +10,7 @@ var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
+builder.Services.AddGrpcPlatform();
 
 var moduleInstallerTypes = DomainDiscovery.FindModuleInstallerTypes();
 var installers = DomainDiscovery.CreateModuleInstallers(moduleInstallerTypes);
@@ -19,8 +20,6 @@ foreach (var installer in installers)
     installer.RegisterServices(builder.Services, builder.Configuration);
     installer.RegisterControllers(mvcBuilder);
 }
-
-builder.Services.AddGrpcPlatform();
 
 var app = builder.Build();
 
@@ -35,6 +34,8 @@ app.UsePlatformSwagger();
 app.MapControllers();
 
 foreach (var installer in installers)
+{
     installer.MapGrpcServices(app);
+}
 
 app.Run();
