@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+option csharp_namespace = "JK.Order.Proto";
+
+package jk.order;
+
+import "google/api/annotations.proto";
+
+service OrderGrpc {
+  rpc GetById (GetOrderByIdRequest) returns (OrderMessage) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/orders/{id}"
+    };
+  }
+
+  rpc List (ListOrdersRequest) returns (ListOrdersResponse) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/orders"
+    };
+  }
+
+  rpc Create (CreateOrderRequest) returns (OrderMessage) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/orders"
+      body: "*"
+    };
+  }
+
+  rpc Update (UpdateOrderRequest) returns (OrderMessage) {
+    option (google.api.http) = {
+      put: "/api/grpc/v1/orders/{id}"
+      body: "*"
+    };
+  }
+
+  rpc Delete (DeleteOrderRequest) returns (DeleteOrderResponse) {
+    option (google.api.http) = {
+      delete: "/api/grpc/v1/orders/{id}"
+    };
+  }
+}
+
+message OrderMessage {
+  string id = 1;
+  string number = 2;
+  double total_amount = 3;
+  string status = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message GetOrderByIdRequest {
+  string id = 1;
+}
+
+message ListOrdersRequest {
+  string search_term = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string sort_by = 4;
+  string sort_direction = 5;
+}
+
+message ListOrdersResponse {
+  repeated OrderMessage items = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_count = 4;
+}
+
+message CreateOrderRequest {
+  string number = 1;
+  double total_amount = 2;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  string status = 2;
+}
+
+message DeleteOrderRequest {
+  string id = 1;
+}
+
+message DeleteOrderResponse {
+  bool success = 1;
+}
+
+

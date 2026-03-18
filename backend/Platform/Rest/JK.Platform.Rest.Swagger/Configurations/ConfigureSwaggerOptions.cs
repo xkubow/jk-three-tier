@@ -22,6 +22,8 @@ public sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOption
 
     public void Configure(SwaggerGenOptions options)
     {
+        options.CustomSchemaIds(type => type.FullName ?? type.Name);
+
         foreach (var description in _apiVersionDescriptionProvider.ApiVersionDescriptions)
         {
             options.SwaggerDoc(description.GroupName, CreateOpenApiInfo(description));
