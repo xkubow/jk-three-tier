@@ -22,7 +22,7 @@ public sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOption
 
     public void Configure(SwaggerGenOptions options)
     {
-        options.CustomSchemaIds(type => type.FullName ?? type.Name);
+        options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "."));
 
         foreach (var description in _apiVersionDescriptionProvider.ApiVersionDescriptions)
         {

@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSwaggerGen(options =>
         {
+            options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "."));
             if (swaggerConfiguration.EnableAnnotations)
             {
                 options.EnableAnnotations();
