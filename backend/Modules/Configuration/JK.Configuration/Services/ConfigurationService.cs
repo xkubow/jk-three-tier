@@ -2,6 +2,7 @@ using JK.Configuration.Contracts;
 using JK.Configuration.Database;
 using JK.Configuration.Database.Entities;
 using JK.Configuration.Database.Repositories;
+using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 
 namespace JK.Configuration.Services;
@@ -76,5 +77,10 @@ public class ConfigurationService : IConfigurationService
         _unitOfWork.Configurations.SoftDelete(entity);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    public async Task<List<ConfigurationDto>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
+    {
+        return await _unitOfWork.Configurations.GetConfigurationsAsync(request, cancellationToken);
     }
 }

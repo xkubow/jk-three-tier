@@ -1,5 +1,7 @@
+using AutoMapper;
 using Grpc.Core;
 using JK.Configuration.Contracts;
+using JK.Configuration.Models;
 using JK.Configuration.Proto;
 using JK.Configuration.Services;
 
@@ -8,10 +10,12 @@ namespace JK.Configuration.Endpoints.GrpcPorts;
 public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
 {
     private readonly IConfigurationService _service;
+    private readonly IMapper _mapper;
 
-    public ConfigurationGrpcPort(IConfigurationService service)
+    public ConfigurationGrpcPort(IConfigurationService service, IMapper mapper)
     {
         _service = service;
+        _mapper = mapper;
     }
 
     public override async Task<ConfigurationMessage> GetById(GetConfigurationByIdRequest request, ServerCallContext context)
@@ -99,5 +103,15 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
         if (dto.CreatedBy != null) msg.CreatedBy = dto.CreatedBy;
         if (dto.UpdatedBy != null) msg.UpdatedBy = dto.UpdatedBy;
         return msg;
+    }
+
+    public override async Task<GrpcConfigurationResponse> GetConfiguration(GrpcConfigurationRequest grpcRequest, ServerCallContext context)
+    {
+        var request = _mapper.Map<ConfigurationRequest>(grpcRequest);
+        var configurations = await _service.GetConfigurationsAsync(request, context.CancellationToken);
+        var response = new GrpcConfigurationResponse();
+        var responseData = _mapper.Map<List<GrpcConfiguration>>(configurations);
+        response.Configurations.AddRange(responseData);
+        return response;
     }
 }

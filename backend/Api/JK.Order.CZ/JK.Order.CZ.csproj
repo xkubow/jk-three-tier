@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Configuration\JK.Configuration.Provider\JK.Configuration.Provider.csproj" />
     <ProjectReference Include="..\..\Modules\Order\JK.Order\JK.Order.csproj" />
     <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.AspNetCore\JK.Platform.Core.AspNetCore.csproj" />
     <ProjectReference Include="..\..\Platform\Grpc\JK.Platform.Grpc.Server\JK.Platform.Grpc.Server.csproj" />

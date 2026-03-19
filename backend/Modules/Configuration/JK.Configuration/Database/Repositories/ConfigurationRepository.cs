@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using JK.Configuration.Contracts;
 using JK.Configuration.Database.Entities;
+using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.EntityFrameworkCore;
 
@@ -89,6 +90,18 @@ public class ConfigurationRepository : IConfigurationRepository
             .Where(c => !c.IsDeleted && c.MarketCode == marketCode && c.ServiceCode == serviceCode && c.Key == key)
             .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<ConfigurationDto>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Configurations.AsNoTracking().Where(c => !c.IsDeleted && c.MarketCode == request.Market && c.ServiceCode == request.Service);
+
+        if (!string.IsNullOrWhiteSpace(request.MarketArea))
+            query = query.Where(c => c.MarketCode == request.MarketArea);
+
+        return await query
+            .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
     }
 
     public void Add(ConfigurationEntity entity)

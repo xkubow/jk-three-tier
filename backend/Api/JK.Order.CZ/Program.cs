@@ -1,12 +1,22 @@
+using JK.Configuration.Provider;
 using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
 using JK.Platform.Rest.Server.Configurations;
 using JK.Platform.Rest.Swagger.Configurations;
 
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+builder.AddConfigurationServerProvider();
 
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);

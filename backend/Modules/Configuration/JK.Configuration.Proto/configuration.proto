@@ -32,6 +32,11 @@ service ConfigurationGrpc {
       post: "/api/grpc/v1/Configuration/Delete"
     };
   };
+  rpc GetConfiguration (GrpcConfigurationRequest) returns (GrpcConfigurationResponse){
+    option (google.api.http) = {
+      get: "/grpc/v1/configuration"
+    };
+  }
 }
 
 message ConfigurationMessage {
@@ -87,4 +92,19 @@ message DeleteConfigurationRequest {
 
 message DeleteConfigurationResponse {
   bool success = 1;
+}
+
+message GrpcConfigurationRequest {
+  string market_code = 1;
+  optional string market_area = 2;
+  string service_code = 3;
+}
+
+message GrpcConfigurationResponse {
+  repeated GrpcConfiguration configurations = 1;
+}
+
+message GrpcConfiguration {
+  string key = 1;
+  optional string value = 2;
 }
