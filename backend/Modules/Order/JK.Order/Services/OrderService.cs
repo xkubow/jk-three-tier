@@ -1,7 +1,9 @@
+using JK.Order.Configurations;
 using JK.Order.Contracts;
 using JK.Order.Database;
 using JK.Order.Database.Entities;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.Options;
 
 namespace JK.Order.Services;
 
@@ -9,14 +11,19 @@ namespace JK.Order.Services;
 public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IOptionsSnapshot<OrderConfiguration> _configuration;
 
-    public OrderService(IUnitOfWork unitOfWork)
+    public OrderService(IUnitOfWork unitOfWork, IOptionsSnapshot<OrderConfiguration> configuration)
     {
         _unitOfWork = unitOfWork;
+        _configuration = configuration;
     }
 
     public Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+    {
+        Console.WriteLine(_configuration.Value.RetryCount);
+        return _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+    }
 
     public Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
         => _unitOfWork.Orders.ListAsync(request, cancellationToken);
