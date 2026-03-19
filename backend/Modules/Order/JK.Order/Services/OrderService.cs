@@ -1,8 +1,11 @@
+using AutoMapper;
 using JK.Order.Configurations;
 using JK.Order.Contracts;
 using JK.Order.Database;
 using JK.Order.Database.Entities;
+using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using JK.Platform.Persistence.EfCore;
 using Microsoft.Extensions.Options;
 
 namespace JK.Order.Services;
@@ -11,26 +14,32 @@ namespace JK.Order.Services;
 public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
     private readonly IOptionsSnapshot<OrderConfiguration> _configuration;
 
-    public OrderService(IUnitOfWork unitOfWork, IOptionsSnapshot<OrderConfiguration> configuration)
+    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<OrderConfiguration> configuration)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
         _configuration = configuration;
     }
 
-    public Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         Console.WriteLine(_configuration.Value.RetryCount);
-        return _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        var model = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        return _mapper.Map<OrderDto>(model);
     }
 
-    public Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
-        => _unitOfWork.Orders.ListAsync(request, cancellationToken);
+    public async Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
+    {
+        var pagedResponse = await _unitOfWork.Orders.ListAsync(request, cancellationToken);
+        return _mapper.Map<PagedResponse<OrderDto>>(pagedResponse);
+    }
 
     public async Task<OrderDto> CreateAsync(CreateOrderRequest request, CancellationToken cancellationToken = default)
     {
-        var entity = new OrderEntity
+        var model = new OrderModel
         {
             Id = Guid.NewGuid(),
             Number = request.Number.Trim(),
@@ -40,32 +49,34 @@ public class OrderService : IOrderService
             UpdatedAt = DateTime.UtcNow
         };
 
-        _unitOfWork.Orders.Add(entity);
+        await _unitOfWork.Orders.AddAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var dto = await _unitOfWork.Orders.GetByIdAsync(entity.Id, cancellationToken);
-        return dto!;
+        var insertedModel = await _unitOfWork.Orders.GetByIdAsync(model.Id, cancellationToken);
+        return _mapper.Map<OrderDto>(insertedModel);
     }
 
     public async Task<OrderDto?> UpdateAsync(Guid id, UpdateOrderRequest request, CancellationToken cancellationToken = default)
     {
-        var entity = await _unitOfWork.Orders.GetEntityByIdAsync(id, cancellationToken);
-        if (entity == null) return null;
+        var model = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        if (model == null) return null;
 
-        entity.Status = request.Status.Trim();
-        entity.UpdatedAt = DateTime.UtcNow;
-        _unitOfWork.Orders.Update(entity);
+        model.Status = request.Status.Trim();
+        model.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Orders.UpdateAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        var updatedModel = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        return _mapper.Map<OrderDto>(updatedModel);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await _unitOfWork.Orders.GetEntityByIdAsync(id, cancellationToken);
-        if (entity == null) return false;
+        var exists = await _unitOfWork.Orders.ExistsAsync(id, cancellationToken);
+        if (!exists) return false;
 
-        _unitOfWork.Orders.Delete(entity);
+        await _unitOfWork.Orders.DeleteAsync(id, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
     }

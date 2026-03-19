@@ -1,14 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using JK.Platform.Persistence.EfCore;
 
 namespace JK.Order.Database.Entities;
 
 [Table("Order")]
-public class OrderEntity
+public class OrderEntity: EntityBase<Guid>, ICreatedOnEntity, IUpdatedOnEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [Required]
     [MaxLength(100)]
     public string Number { get; set; } = string.Empty;
@@ -22,6 +20,6 @@ public class OrderEntity
 
     public DateTime CreatedAt { get; set; }
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 

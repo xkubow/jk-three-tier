@@ -1,8 +1,13 @@
-namespace JK.Configuration.Contracts;
+using JK.Platform.Persistence.EfCore;
 
-public class ConfigurationDto
+namespace JK.Configuration.Models;
+
+/// <summary>
+/// Configuration item DTO. Supports multimarket (MarketCode) and multiservice (ServiceCode) scoping.
+/// Null MarketCode/ServiceCode means "applies to all" for that dimension.
+/// </summary>
+public class ConfigurationModel: ModelBase<Guid>
 {
-    public Guid Id { get; set; }
     public string? MarketCode { get; set; }
     public string? ServiceCode { get; set; }
     public string Key { get; set; } = string.Empty;

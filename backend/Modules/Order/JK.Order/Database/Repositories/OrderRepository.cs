@@ -2,42 +2,30 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using JK.Order.Contracts;
 using JK.Order.Database.Entities;
+using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace JK.Order.Database.Repositories;
 
 [Injectable]
-public class OrderRepository : IOrderRepository
+public class OrderRepository : BaseRepository<OrderModel, OrderEntity, Guid>, IOrderRepository
 {
-    private readonly OrderDbContext _context;
-    private readonly IMapper _mapper;
-
-    public OrderRepository(OrderDbContext context, IMapper mapper)
+    public OrderRepository(OrderDbContext context, IMapper mapper) : base(context, mapper)
     {
-        _context = context;
-        _mapper = mapper;
     }
 
     public async Task<OrderEntity?> GetEntityByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Orders
+        return await DbSet
             .Where(o => o.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<OrderModel>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
     {
-        return await _context.Orders
-            .AsNoTracking()
-            .Where(o => o.Id == id)
-            .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
-    {
-        var query = _context.Orders.AsNoTracking();
+        var query = DbSet.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
@@ -66,31 +54,16 @@ public class OrderRepository : IOrderRepository
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<OrderModel>(Mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
-        return new PagedResponse<OrderDto>
+        return new PagedResponse<OrderModel>
         {
             Items = items,
             Page = page,
             PageSize = pageSize,
             TotalCount = totalCount
         };
-    }
-
-    public void Add(OrderEntity entity)
-    {
-        _context.Orders.Add(entity);
-    }
-
-    public void Update(OrderEntity entity)
-    {
-        _context.Orders.Update(entity);
-    }
-
-    public void Delete(OrderEntity entity)
-    {
-        _context.Orders.Remove(entity);
     }
 }
 

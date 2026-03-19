@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj" />
     <ProjectReference Include="..\JK.Configuration.Contracts\JK.Configuration.Contracts.csproj" />
     <ProjectReference Include="..\JK.Configuration.Proto\JK.Configuration.Proto.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />

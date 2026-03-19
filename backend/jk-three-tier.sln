@@ -67,6 +67,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JK.Configuration.Provider",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JK.Platform.Grpc.Client", "Platform\Grpc\JK.Platform.Grpc.Client\JK.Platform.Grpc.Client.csproj", "{AB5A4F85-CB09-484F-B38F-EFC57A63043C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistance", "Persistance", "{072F74E1-2450-48D3-A645-0ABEB61C0CFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JK.Platform.Persistence.EfCore", "Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj", "{D848EF53-DB4F-4C10-9832-49436502FE47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -329,6 +333,18 @@ Global
 		{AB5A4F85-CB09-484F-B38F-EFC57A63043C}.Release|x64.Build.0 = Release|Any CPU
 		{AB5A4F85-CB09-484F-B38F-EFC57A63043C}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB5A4F85-CB09-484F-B38F-EFC57A63043C}.Release|x86.Build.0 = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|x64.Build.0 = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Debug|x86.Build.0 = Debug|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|x64.ActiveCfg = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|x64.Build.0 = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|x86.ActiveCfg = Release|Any CPU
+		{D848EF53-DB4F-4C10-9832-49436502FE47}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -362,6 +378,8 @@ Global
 		{B442D12D-C639-41E1-944E-D648DC5FA292} = {7D411742-2E35-402B-940D-E4492BEB1F87}
 		{CE522E3C-DF2C-41B8-8E76-238ED2EE120C} = {3A0A877D-A9E7-4D88-9493-5224F86F19B0}
 		{AB5A4F85-CB09-484F-B38F-EFC57A63043C} = {7D411742-2E35-402B-940D-E4492BEB1F87}
+		{072F74E1-2450-48D3-A645-0ABEB61C0CFF} = {D1267F64-3B2C-437E-228A-D79E2474394F}
+		{D848EF53-DB4F-4C10-9832-49436502FE47} = {072F74E1-2450-48D3-A645-0ABEB61C0CFF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C4EAEAE-BCDB-4981-9B3C-20A16B1BE6AD}

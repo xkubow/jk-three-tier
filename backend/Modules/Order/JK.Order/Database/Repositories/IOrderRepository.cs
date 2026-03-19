@@ -1,15 +1,13 @@
 using JK.Order.Contracts;
 using JK.Order.Database.Entities;
+using JK.Order.Models;
+using JK.Platform.Persistence.EfCore;
 
 namespace JK.Order.Database.Repositories;
 
-public interface IOrderRepository
+public interface IOrderRepository : IRepository<OrderModel, Guid>
 {
     Task<OrderEntity?> GetEntityByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default);
-    void Add(OrderEntity entity);
-    void Update(OrderEntity entity);
-    void Delete(OrderEntity entity);
+    Task<PagedResponse<OrderModel>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default);
 }
 

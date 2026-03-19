@@ -4,39 +4,24 @@ using JK.Configuration.Contracts;
 using JK.Configuration.Database.Entities;
 using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace JK.Configuration.Database.Repositories;
 
 [Injectable]
-public class ConfigurationRepository : IConfigurationRepository
+public class ConfigurationRepository : BaseRepository<ConfigurationModel, ConfigurationEntity, Guid>,  IConfigurationRepository
 {
     private readonly ConfigurationDbContext _context;
     private readonly IMapper _mapper;
 
-    public ConfigurationRepository(ConfigurationDbContext context, IMapper mapper)
+    public ConfigurationRepository(ConfigurationDbContext context, IMapper mapper): base(context, mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    public async Task<ConfigurationEntity?> GetEntityByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _context.Configurations
-            .Where(c => c.Id == id && !c.IsDeleted)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task<ConfigurationDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _context.Configurations
-            .AsNoTracking()
-            .Where(c => c.Id == id && !c.IsDeleted)
-            .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task<PagedResponse<ConfigurationDto>> ListAsync(ListConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<ConfigurationModel>> ListAsync(ListConfigurationRequest request, CancellationToken cancellationToken = default)
     {
         var query = _context.Configurations.AsNoTracking().Where(c => !c.IsDeleted);
 
@@ -71,10 +56,10 @@ public class ConfigurationRepository : IConfigurationRepository
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<ConfigurationModel>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
-        return new PagedResponse<ConfigurationDto>
+        return new PagedResponse<ConfigurationModel>
         {
             Items = items,
             Page = page,
@@ -83,12 +68,12 @@ public class ConfigurationRepository : IConfigurationRepository
         };
     }
 
-    public async Task<ConfigurationDto?> GetByScopeAndKeyAsync(string? marketCode, string? serviceCode, string key, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationModel?> GetByScopeAndKeyAsync(string? marketCode, string? serviceCode, string key, CancellationToken cancellationToken = default)
     {
         return await _context.Configurations
             .AsNoTracking()
             .Where(c => !c.IsDeleted && c.MarketCode == marketCode && c.ServiceCode == serviceCode && c.Key == key)
-            .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<ConfigurationModel>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -125,10 +110,7 @@ public class ConfigurationRepository : IConfigurationRepository
         return ordered;
     }
 
-    private static int GetSpecificity(
-        ConfigurationEntity entity,
-        string? marketCode,
-        string? serviceCode)
+    private static int GetSpecificity( ConfigurationEntity entity, string? marketCode, string? serviceCode)
     {
         var score = 0;
 
@@ -145,22 +127,5 @@ public class ConfigurationRepository : IConfigurationRepository
         }
 
         return score;
-    }
-
-    public void Add(ConfigurationEntity entity)
-    {
-        _context.Configurations.Add(entity);
-    }
-
-    public void Update(ConfigurationEntity entity)
-    {
-        _context.Configurations.Update(entity);
-    }
-
-    public void SoftDelete(ConfigurationEntity entity)
-    {
-        entity.IsDeleted = true;
-        entity.DeletedAt = DateTime.UtcNow;
-        _context.Configurations.Update(entity);
     }
 }

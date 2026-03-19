@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using JK.Platform.Persistence.EfCore;
 
 namespace JK.Configuration.Database.Entities;
 
@@ -8,11 +9,8 @@ namespace JK.Configuration.Database.Entities;
 /// MarketCode/ServiceCode null = applies to all markets/services.
 /// </summary>
 [Table("Configuration")]
-public class ConfigurationEntity
+public class ConfigurationEntity: EntityBase<Guid>, ICreatedOnEntity, IUpdatedOnEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [MaxLength(50)]
     public string? MarketCode { get; set; }
 
@@ -27,7 +25,7 @@ public class ConfigurationEntity
     public string Value { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     [MaxLength(200)]
     public string? CreatedBy { get; set; }

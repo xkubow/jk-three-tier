@@ -22,12 +22,14 @@ public class ConfigurationService : IConfigurationService
 
     public async Task<ConfigurationDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
+        var configurationModel = await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
+        return _mapper.Map<ConfigurationDto>(configurationModel);
     }
 
     public async Task<PagedResponse<ConfigurationDto>> ListAsync(ListConfigurationRequest request, CancellationToken cancellationToken = default)
     {
-        return await _unitOfWork.Configurations.ListAsync(request, cancellationToken);
+        var pagedResponse = await _unitOfWork.Configurations.ListAsync(request, cancellationToken);
+        return _mapper.Map<PagedResponse<ConfigurationDto>>(pagedResponse);
     }
 
     public async Task<ConfigurationDto> CreateAsync(CreateConfigurationRequest request, CancellationToken cancellationToken = default)
@@ -38,7 +40,7 @@ public class ConfigurationService : IConfigurationService
             throw new InvalidOperationException(
                 $"Configuration already exists for MarketCode={request.MarketCode}, ServiceCode={request.ServiceCode}, Key={request.Key}.");
 
-        var entity = new ConfigurationEntity
+        var model = new ConfigurationModel()
         {
             Id = Guid.NewGuid(),
             MarketCode = string.IsNullOrWhiteSpace(request.MarketCode) ? null : request.MarketCode.Trim(),
@@ -49,35 +51,35 @@ public class ConfigurationService : IConfigurationService
             UpdatedAt = DateTime.UtcNow,
             CreatedBy = request.CreatedBy,
             UpdatedBy = request.CreatedBy,
-            IsDeleted = false
         };
-        _unitOfWork.Configurations.Add(entity);
+        await _unitOfWork.Configurations.AddAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var dto = await _unitOfWork.Configurations.GetByIdAsync(entity.Id, cancellationToken);
-        return dto!;
+        var insertedModel = await _unitOfWork.Configurations.GetByIdAsync(model.Id, cancellationToken);
+        return _mapper.Map<ConfigurationDto>(insertedModel);
     }
 
     public async Task<ConfigurationDto?> UpdateAsync(Guid id, UpdateConfigurationRequest request, CancellationToken cancellationToken = default)
     {
-        var entity = await _unitOfWork.Configurations.GetEntityByIdAsync(id, cancellationToken);
-        if (entity == null) return null;
+        var model = await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
+        if (model == null) return null;
 
-        entity.Value = request.Value;
-        entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = request.UpdatedBy;
-        _unitOfWork.Configurations.Update(entity);
+        model.Value = request.Value;
+        model.UpdatedAt = DateTime.UtcNow;
+        model.UpdatedBy = request.UpdatedBy;
+        await _unitOfWork.Configurations.UpdateAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
+        var updatedModel = await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
+        return _mapper.Map<ConfigurationDto>(updatedModel);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await _unitOfWork.Configurations.GetEntityByIdAsync(id, cancellationToken);
+        var entity = await _unitOfWork.Configurations.GetByIdAsync(id, cancellationToken);
         if (entity == null) return false;
 
-        _unitOfWork.Configurations.SoftDelete(entity);
+        await _unitOfWork.Configurations.DeleteAsync(id,cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
     }
