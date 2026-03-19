@@ -1,3 +1,4 @@
+using AutoMapper;
 using JK.Configuration.Contracts;
 using JK.Configuration.Database;
 using JK.Configuration.Database.Entities;
@@ -11,10 +12,12 @@ namespace JK.Configuration.Services;
 public class ConfigurationService : IConfigurationService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public ConfigurationService(IUnitOfWork unitOfWork)
+    public ConfigurationService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<ConfigurationDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -81,6 +84,7 @@ public class ConfigurationService : IConfigurationService
 
     public async Task<List<ConfigurationDto>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
     {
-        return await _unitOfWork.Configurations.GetConfigurationsAsync(request, cancellationToken);
+        var entities = await _unitOfWork.Configurations.GetConfigurationsAsync(request, cancellationToken);
+        return _mapper.Map<List<ConfigurationDto>>(entities);
     }
 }

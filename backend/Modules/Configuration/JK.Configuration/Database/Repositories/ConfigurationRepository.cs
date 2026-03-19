@@ -92,16 +92,59 @@ public class ConfigurationRepository : IConfigurationRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<List<ConfigurationDto>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ConfigurationEntity>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = _context.Configurations.AsNoTracking().Where(c => !c.IsDeleted && c.MarketCode == request.Market && c.ServiceCode == request.Service);
+        var marketCode = string.IsNullOrWhiteSpace(request.MarketCode)
+            ? null
+            : request.MarketCode;
 
-        if (!string.IsNullOrWhiteSpace(request.MarketArea))
-            query = query.Where(c => c.MarketCode == request.MarketArea);
+        var marketArea = string.IsNullOrWhiteSpace(request.MarketArea)
+            ? null
+            : request.MarketArea;
 
-        return await query
-            .ProjectTo<ConfigurationDto>(_mapper.ConfigurationProvider)
+        var serviceCode = string.IsNullOrWhiteSpace(request.ServiceCode)
+            ? null
+            : request.ServiceCode;
+
+        var rows = await _context.Configurations
+            .AsNoTracking()
+            .Where(x => !x.IsDeleted)
+            .Where(x => x.MarketCode == null || x.MarketCode == marketCode)
+            .Where(x => x.ServiceCode == null || x.ServiceCode == serviceCode)
             .ToListAsync(cancellationToken);
+
+        // If you later add a real MarketArea column, handle it here.
+        // Right now do NOT compare MarketCode to MarketArea.
+
+        var ordered = rows
+            .OrderBy(x => x.Key)
+            .ThenBy(x => GetSpecificity(x, marketCode, serviceCode))
+            .ThenBy(x => x.UpdatedAt)
+            .ToList();
+
+        return ordered;
+    }
+
+    private static int GetSpecificity(
+        ConfigurationEntity entity,
+        string? marketCode,
+        string? serviceCode)
+    {
+        var score = 0;
+
+        if (!string.IsNullOrWhiteSpace(entity.MarketCode) &&
+            string.Equals(entity.MarketCode, marketCode, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 1;
+        }
+
+        if (!string.IsNullOrWhiteSpace(entity.ServiceCode) &&
+            string.Equals(entity.ServiceCode, serviceCode, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 2;
+        }
+
+        return score;
     }
 
     public void Add(ConfigurationEntity entity)

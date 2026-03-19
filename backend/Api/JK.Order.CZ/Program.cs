@@ -5,11 +5,7 @@ using JK.Platform.Http.Configurations;
 using JK.Platform.Rest.Server.Configurations;
 using JK.Platform.Rest.Swagger.Configurations;
 
-AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
 var builder = WebApplication.CreateBuilder(args);
-
-var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -17,6 +13,8 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.AddConfigurationServerProvider();
+
+var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
