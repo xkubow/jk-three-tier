@@ -1,9 +1,10 @@
 using JK.Order.Database.Repositories;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Order.Database;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class UnitOfWork : IUnitOfWork
 {
     private readonly OrderDbContext _context;

@@ -9,5 +9,5 @@ public interface IConfigurationRepository: IRepository<ConfigurationModel, Guid>
 {
     Task<PagedResponse<ConfigurationModel>> ListAsync(ListConfigurationRequest request, CancellationToken cancellationToken = default);
     Task<ConfigurationModel?> GetByScopeAndKeyAsync(string? marketCode, string? serviceCode, string key, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<ConfigurationEntity>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<ConfigurationModel>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default);
 }

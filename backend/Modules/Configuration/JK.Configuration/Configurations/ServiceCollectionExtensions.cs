@@ -36,7 +36,6 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(cfg => cfg.AddMaps(typeof(ConfigurationAssemblyMarker).Assembly));
         services.AddValidatorsFromAssembly(typeof(ConfigurationAssemblyMarker).Assembly);
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
         services.AddScoped<IConfigurationService, ConfigurationService>();
 

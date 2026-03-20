@@ -1,10 +1,11 @@
 using AutoMapper;
 using JK.Configuration.Database.Repositories;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Configuration.Database;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ConfigurationDbContext _context;

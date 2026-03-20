@@ -6,10 +6,11 @@ using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Order.Database.Repositories;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class OrderRepository : BaseRepository<OrderModel, OrderEntity, Guid>, IOrderRepository
 {
     public OrderRepository(OrderDbContext context, IMapper mapper) : base(context, mapper)
@@ -19,7 +20,7 @@ public class OrderRepository : BaseRepository<OrderModel, OrderEntity, Guid>, IO
     public async Task<OrderEntity?> GetEntityByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Where(o => o.Id == id)
+            .Where(o => o.Id.Equals(id))
             .FirstOrDefaultAsync(cancellationToken);
     }
 

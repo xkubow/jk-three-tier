@@ -21,7 +21,7 @@ public abstract class BaseRepository<TModel, TEntity, TKey> : IRepository<TModel
 
     public virtual async Task<TModel?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
     {
-        var entity = await Query.FirstOrDefaultAsync(x => EqualityComparer<TKey>.Default.Equals(x.Id, id), cancellationToken);
+        var entity = await Query.FirstOrDefaultAsync(x => x.Id!.Equals(id), cancellationToken);
         return entity is null ? null : Mapper.Map<TModel>(entity);
     }
 
@@ -33,7 +33,7 @@ public abstract class BaseRepository<TModel, TEntity, TKey> : IRepository<TModel
 
     public virtual async Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default)
     {
-        return await Query.AnyAsync(x => EqualityComparer<TKey>.Default.Equals(x.Id, id), cancellationToken);
+        return await Query.AnyAsync(x => x.Id!.Equals(id), cancellationToken);
     }
 
     public virtual async Task AddAsync(TModel model, CancellationToken cancellationToken = default)
@@ -66,7 +66,7 @@ public abstract class BaseRepository<TModel, TEntity, TKey> : IRepository<TModel
     public virtual async Task UpdateAsync(TModel model, CancellationToken cancellationToken = default)
     {
         var entity = await DbSet.FirstOrDefaultAsync(
-            x => EqualityComparer<TKey>.Default.Equals(x.Id, model.Id),
+            x => x.Id!.Equals(model.Id),
             cancellationToken);
 
         if (entity is null)
@@ -87,7 +87,7 @@ public abstract class BaseRepository<TModel, TEntity, TKey> : IRepository<TModel
     public virtual async Task DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
         var entity = await DbSet.FirstOrDefaultAsync(
-            x => EqualityComparer<TKey>.Default.Equals(x.Id, id),
+            x => x.Id!.Equals(id),
             cancellationToken);
 
         if (entity is null)

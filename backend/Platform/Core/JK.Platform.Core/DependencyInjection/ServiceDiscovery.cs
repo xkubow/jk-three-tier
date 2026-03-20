@@ -51,7 +51,14 @@ public static class ServiceDiscovery
             .Where(i => !IsFrameworkInterface(i))
             .ToArray();
 
-        return interfaces.FirstOrDefault() ?? implementationType;
+        if (interfaces.Length == 0) return implementationType;
+
+        // Try to find the interface that matches the name of the implementation
+        // e.g., OrderRepository -> IOrderRepository
+        var matchingInterface = interfaces.FirstOrDefault(i => 
+            i.Name.Equals($"I{implementationType.Name}", StringComparison.OrdinalIgnoreCase));
+
+        return matchingInterface ?? interfaces.FirstOrDefault() ?? implementationType;
     }
 
     private static bool IsFrameworkInterface(Type type)

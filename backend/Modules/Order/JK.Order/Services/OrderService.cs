@@ -5,12 +5,12 @@ using JK.Order.Database;
 using JK.Order.Database.Entities;
 using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
-using JK.Platform.Persistence.EfCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace JK.Order.Services;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;

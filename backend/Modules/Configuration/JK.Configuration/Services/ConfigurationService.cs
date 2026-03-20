@@ -5,10 +5,11 @@ using JK.Configuration.Database.Entities;
 using JK.Configuration.Database.Repositories;
 using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Configuration.Services;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class ConfigurationService : IConfigurationService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -86,7 +87,7 @@ public class ConfigurationService : IConfigurationService
 
     public async Task<List<ConfigurationDto>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
     {
-        var entities = await _unitOfWork.Configurations.GetConfigurationsAsync(request, cancellationToken);
-        return _mapper.Map<List<ConfigurationDto>>(entities);
+        var configurationModels = await _unitOfWork.Configurations.GetConfigurationsAsync(request, cancellationToken);
+        return _mapper.Map<List<ConfigurationDto>>(configurationModels);
     }
 }

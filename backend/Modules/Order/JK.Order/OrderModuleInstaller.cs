@@ -27,7 +27,6 @@ public class OrderModuleInstaller : IModuleInstaller
             options.UseNpgsql(connectionString);
         });
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);

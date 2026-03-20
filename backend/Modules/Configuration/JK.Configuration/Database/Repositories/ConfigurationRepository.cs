@@ -6,10 +6,11 @@ using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Configuration.Database.Repositories;
 
-[Injectable]
+[Injectable(ServiceLifetime.Scoped)]
 public class ConfigurationRepository : BaseRepository<ConfigurationModel, ConfigurationEntity, Guid>,  IConfigurationRepository
 {
     private readonly ConfigurationDbContext _context;
@@ -77,7 +78,7 @@ public class ConfigurationRepository : BaseRepository<ConfigurationModel, Config
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<ConfigurationEntity>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ConfigurationModel>> GetConfigurationsAsync(ConfigurationRequest request, CancellationToken cancellationToken = default)
     {
         var marketCode = string.IsNullOrWhiteSpace(request.MarketCode)
             ? null
@@ -107,7 +108,7 @@ public class ConfigurationRepository : BaseRepository<ConfigurationModel, Config
             .ThenBy(x => x.UpdatedAt)
             .ToList();
 
-        return ordered;
+        return _mapper.Map<List<ConfigurationModel>>(ordered);
     }
 
     private static int GetSpecificity( ConfigurationEntity entity, string? marketCode, string? serviceCode)
