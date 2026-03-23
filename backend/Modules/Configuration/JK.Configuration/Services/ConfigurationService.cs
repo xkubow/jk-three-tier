@@ -1,8 +1,6 @@
 using AutoMapper;
 using JK.Configuration.Contracts;
 using JK.Configuration.Database;
-using JK.Configuration.Database.Entities;
-using JK.Configuration.Database.Repositories;
 using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;

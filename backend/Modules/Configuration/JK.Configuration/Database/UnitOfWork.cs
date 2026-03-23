@@ -1,33 +1,22 @@
 using AutoMapper;
 using JK.Configuration.Database.Repositories;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using JK.Platform.Core.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Configuration.Database;
 
 [Injectable(ServiceLifetime.Scoped)]
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork : UnitOfWork<ConfigurationDbContext>, IUnitOfWork
 {
-    private readonly ConfigurationDbContext _context;
     private readonly IMapper _mapper;
     private IConfigurationRepository? _configurationRepository;
 
-    public UnitOfWork(ConfigurationDbContext context, IMapper mapper)
+    public UnitOfWork(ConfigurationDbContext context, IMapper mapper) : base(context)
     {
-        _context = context;
         _mapper = mapper;
     }
 
     public IConfigurationRepository Configurations =>
-        _configurationRepository ??= new ConfigurationRepository(_context, _mapper);
-
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
+        _configurationRepository ??= new ConfigurationRepository(Context, _mapper);
 }

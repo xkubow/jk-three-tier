@@ -1,6 +1,9 @@
 using Grpc.Net.Client;
 using JK.Configuration.Contracts;
 using JK.Configuration.Proto;
+using CreateConfigurationRequest = JK.Configuration.Contracts.CreateConfigurationRequest;
+using ListConfigurationRequest = JK.Configuration.Contracts.ListConfigurationRequest;
+using UpdateConfigurationRequest = JK.Configuration.Contracts.UpdateConfigurationRequest;
 
 namespace JK.Configuration.Client.Grpc;
 
@@ -28,7 +31,7 @@ public class ConfigurationGrpcClient : IConfigurationGrpcClient
         return FromMessage(response);
     }
 
-    public async Task<PagedResponse<ConfigurationDto>> ListAsync(Contracts.ListConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<ConfigurationDto>> ListAsync(ListConfigurationRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.ListConfigurationRequest
         {
@@ -52,7 +55,7 @@ public class ConfigurationGrpcClient : IConfigurationGrpcClient
         };
     }
 
-    public async Task<ConfigurationDto> CreateAsync(Contracts.CreateConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationDto> CreateAsync(CreateConfigurationRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.CreateConfigurationRequest { Key = request.Key, Value = request.Value };
         if (request.MarketCode != null) protoRequest.MarketCode = request.MarketCode;
@@ -63,7 +66,7 @@ public class ConfigurationGrpcClient : IConfigurationGrpcClient
         return FromMessage(response)!;
     }
 
-    public async Task<ConfigurationDto?> UpdateAsync(Guid id, Contracts.UpdateConfigurationRequest request, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationDto?> UpdateAsync(Guid id, UpdateConfigurationRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.UpdateConfigurationRequest { Id = id.ToString(), Value = request.Value };
         if (request.UpdatedBy != null) protoRequest.UpdatedBy = request.UpdatedBy;

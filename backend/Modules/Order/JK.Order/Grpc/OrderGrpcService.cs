@@ -2,6 +2,9 @@ using Grpc.Core;
 using JK.Order.Contracts;
 using JK.Order.Proto;
 using JK.Order.Services;
+using CreateOrderRequest = JK.Order.Proto.CreateOrderRequest;
+using ListOrdersRequest = JK.Order.Proto.ListOrdersRequest;
+using UpdateOrderRequest = JK.Order.Proto.UpdateOrderRequest;
 
 namespace JK.Order.Grpc;
 
@@ -26,7 +29,7 @@ public class OrderGrpcService : OrderGrpc.OrderGrpcBase
         return ToMessage(item);
     }
 
-    public override async Task<ListOrdersResponse> List(Proto.ListOrdersRequest request, ServerCallContext context)
+    public override async Task<ListOrdersResponse> List(ListOrdersRequest request, ServerCallContext context)
     {
         var listRequest = new Contracts.ListOrdersRequest
         {
@@ -49,7 +52,7 @@ public class OrderGrpcService : OrderGrpc.OrderGrpcBase
         return response;
     }
 
-    public override async Task<OrderMessage> Create(Proto.CreateOrderRequest request, ServerCallContext context)
+    public override async Task<OrderMessage> Create(CreateOrderRequest request, ServerCallContext context)
     {
         var createRequest = new Contracts.CreateOrderRequest
         {
@@ -61,7 +64,7 @@ public class OrderGrpcService : OrderGrpc.OrderGrpcBase
         return ToMessage(item);
     }
 
-    public override async Task<OrderMessage> Update(Proto.UpdateOrderRequest request, ServerCallContext context)
+    public override async Task<OrderMessage> Update(UpdateOrderRequest request, ServerCallContext context)
     {
         if (!Guid.TryParse(request.Id, out var id))
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid Id"));

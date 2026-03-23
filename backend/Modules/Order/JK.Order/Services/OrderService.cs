@@ -2,7 +2,6 @@ using AutoMapper;
 using JK.Order.Configurations;
 using JK.Order.Contracts;
 using JK.Order.Database;
-using JK.Order.Database.Entities;
 using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;

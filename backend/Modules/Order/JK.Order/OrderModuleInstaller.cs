@@ -1,10 +1,8 @@
 using FluentValidation;
 using JK.Order.Configurations;
 using JK.Order.Database;
-using JK.Order.Database.Repositories;
 using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
-using JK.Platform.Core.AspNetCore.Abstractions;
 using JK.Platform.Core.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

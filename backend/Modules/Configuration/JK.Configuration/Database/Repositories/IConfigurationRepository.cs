@@ -1,5 +1,4 @@
 using JK.Configuration.Contracts;
-using JK.Configuration.Database.Entities;
 using JK.Configuration.Models;
 using JK.Platform.Persistence.EfCore;
 

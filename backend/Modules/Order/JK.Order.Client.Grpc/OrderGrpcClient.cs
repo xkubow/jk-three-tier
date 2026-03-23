@@ -1,6 +1,9 @@
 using Grpc.Net.Client;
 using JK.Order.Contracts;
 using JK.Order.Proto;
+using CreateOrderRequest = JK.Order.Contracts.CreateOrderRequest;
+using ListOrdersRequest = JK.Order.Contracts.ListOrdersRequest;
+using UpdateOrderRequest = JK.Order.Contracts.UpdateOrderRequest;
 
 namespace JK.Order.Client.Grpc;
 
@@ -25,7 +28,7 @@ public class OrderGrpcClient : IOrderGrpcClient
         return FromMessage(response);
     }
 
-    public async Task<PagedResponse<OrderDto>> ListAsync(Contracts.ListOrdersRequest request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.ListOrdersRequest
         {
@@ -47,7 +50,7 @@ public class OrderGrpcClient : IOrderGrpcClient
         };
     }
 
-    public async Task<OrderDto> CreateAsync(Contracts.CreateOrderRequest request, CancellationToken cancellationToken = default)
+    public async Task<OrderDto> CreateAsync(CreateOrderRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.CreateOrderRequest
         {
@@ -59,7 +62,7 @@ public class OrderGrpcClient : IOrderGrpcClient
         return FromMessage(response)!;
     }
 
-    public async Task<OrderDto?> UpdateAsync(Guid id, Contracts.UpdateOrderRequest request, CancellationToken cancellationToken = default)
+    public async Task<OrderDto?> UpdateAsync(Guid id, UpdateOrderRequest request, CancellationToken cancellationToken = default)
     {
         var protoRequest = new Proto.UpdateOrderRequest
         {

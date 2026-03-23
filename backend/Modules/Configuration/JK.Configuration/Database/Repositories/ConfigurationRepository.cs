@@ -4,7 +4,6 @@ using JK.Configuration.Contracts;
 using JK.Configuration.Database.Entities;
 using JK.Configuration.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
-using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

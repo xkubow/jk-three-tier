@@ -2,8 +2,7 @@ using JK.Configuration.Database.Repositories;
 
 namespace JK.Configuration.Database;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : Platform.Core.Persistence.IUnitOfWork
 {
     IConfigurationRepository Configurations { get; }
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

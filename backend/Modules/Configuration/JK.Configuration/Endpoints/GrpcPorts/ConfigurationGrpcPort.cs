@@ -4,6 +4,9 @@ using JK.Configuration.Contracts;
 using JK.Configuration.Models;
 using JK.Configuration.Proto;
 using JK.Configuration.Services;
+using CreateConfigurationRequest = JK.Configuration.Proto.CreateConfigurationRequest;
+using ListConfigurationRequest = JK.Configuration.Proto.ListConfigurationRequest;
+using UpdateConfigurationRequest = JK.Configuration.Proto.UpdateConfigurationRequest;
 
 namespace JK.Configuration.Endpoints.GrpcPorts;
 
@@ -28,7 +31,7 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
         return ToMessage(item);
     }
 
-    public override async Task<ListConfigurationResponse> List(Proto.ListConfigurationRequest request, ServerCallContext context)
+    public override async Task<ListConfigurationResponse> List(ListConfigurationRequest request, ServerCallContext context)
     {
         var listRequest = new Contracts.ListConfigurationRequest
         {
@@ -51,7 +54,7 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
         return response;
     }
 
-    public override async Task<ConfigurationMessage> Create(Proto.CreateConfigurationRequest request, ServerCallContext context)
+    public override async Task<ConfigurationMessage> Create(CreateConfigurationRequest request, ServerCallContext context)
     {
         var createRequest = new Contracts.CreateConfigurationRequest
         {
@@ -65,7 +68,7 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
         return ToMessage(item);
     }
 
-    public override async Task<ConfigurationMessage> Update(Proto.UpdateConfigurationRequest request, ServerCallContext context)
+    public override async Task<ConfigurationMessage> Update(UpdateConfigurationRequest request, ServerCallContext context)
     {
         if (!Guid.TryParse(request.Id, out var id))
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid Id"));

@@ -1,9 +1,7 @@
 using FluentValidation;
-using JK.Configuration.Configurations;
 using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
-using JK.Platform.Core.AspNetCore.Abstractions;
 using JK.Platform.Core.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

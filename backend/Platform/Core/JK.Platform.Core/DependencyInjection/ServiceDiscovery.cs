@@ -56,7 +56,8 @@ public static class ServiceDiscovery
         // Try to find the interface that matches the name of the implementation
         // e.g., OrderRepository -> IOrderRepository
         var matchingInterface = interfaces.FirstOrDefault(i => 
-            i.Name.Equals($"I{implementationType.Name}", StringComparison.OrdinalIgnoreCase));
+            i.Name.Equals($"I{implementationType.Name}", StringComparison.OrdinalIgnoreCase) && 
+            i.Namespace == implementationType.Namespace);
 
         return matchingInterface ?? interfaces.FirstOrDefault() ?? implementationType;
     }
