@@ -7,27 +7,44 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
-  - http:
-      paths:
-      - path: /api/swagger
-        pathType: Prefix
-        backend:
-          service:
-            name: backend
-            port:
-              number: 8080
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: backend
-            port:
-              number: 8080
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /api/configuration/swagger
+            pathType: Prefix
+            backend:
+              service:
+                name: configuration
+                port:
+                  number: 8080
 
+          - path: /api/order/swagger
+            pathType: Prefix
+            backend:
+              service:
+                name: order
+                port:
+                  number: 8080
+
+          - path: /api/configuration
+            pathType: Prefix
+            backend:
+              service:
+                name: configuration
+                port:
+                  number: 8080
+
+          - path: /api/order
+            pathType: Prefix
+            backend:
+              service:
+                name: order
+                port:
+                  number: 8080
+
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
