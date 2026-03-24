@@ -1,3 +1,4 @@
+using JK.Backend.Migrations;
 using JK.Configuration.Provider;
 using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Grpc.Server.Extensions;
@@ -43,6 +44,9 @@ foreach (var installer in installers)
 }
 
 var app = builder.Build();
+
+if (app.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
+    app.Services.RunBackendMigrations();
 
 app.UseRouting();
 app.UsePlatformCors();

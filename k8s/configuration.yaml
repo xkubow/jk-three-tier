@@ -27,7 +27,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: jk-db-secret
-                  key: DB_CONNECTION_STRING
+                  key: CONFIGURATION_DB_CONNECTION_STRING
           readinessProbe:
             httpGet:
               path: /health/ready

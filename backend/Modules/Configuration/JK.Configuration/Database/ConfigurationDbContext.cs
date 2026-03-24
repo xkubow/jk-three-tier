@@ -11,13 +11,4 @@ public class ConfigurationDbContext : DbContext
     }
 
     public DbSet<ConfigurationEntity> Configurations { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ConfigurationEntity>(e =>
-        {
-            e.HasIndex(x => new { x.MarketCode, x.ServiceCode, x.Key })
-                .HasFilter("\"IsDeleted\" = false");
-        });
-    }
 }

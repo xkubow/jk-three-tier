@@ -22,7 +22,7 @@ spec:
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_DB
-              value: jk_configurations
+              value: jk_three_tier
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -30,7 +30,7 @@ spec:
                   key: POSTGRES_PASSWORD
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "postgres", "-d", "jk_configurations"]
+              command: ["pg_isready", "-U", "postgres", "-d", "postgres"]
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:

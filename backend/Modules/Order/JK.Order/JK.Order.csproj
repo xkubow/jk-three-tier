@@ -31,6 +31,8 @@
     <ProjectReference Include="..\JK.Order.Proto\JK.Order.Proto.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
     <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
+    <ProjectReference Include="..\..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\JK.Order.Database\JK.Order.Database.csproj" />
   </ItemGroup>
 
 </Project>

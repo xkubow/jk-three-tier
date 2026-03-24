@@ -19,7 +19,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   - Edit `.env` to set a strong password and keep both values in sync:
   ```env
   POSTGRES_PASSWORD=YourStrongLocalPass123
-  DB_CONNECTION_STRING=Host=postgres;Port=5432;Database=jk_configurations;Username=postgres;Password=YourStrongLocalPass123;
+  DB_CONNECTION_STRING=Host=postgres;Port=5432;Database=jk_three_tier;Username=postgres;Password=YourStrongLocalPass123;
   ```
 - **Start stack**
   - Compose file is in `docker/docker-compose.yml`:
@@ -92,7 +92,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   - It defines:
   ```yaml
   POSTGRES_PASSWORD: "change-me-strong-password"
-  DB_CONNECTION_STRING: "Host=postgres;Port=5432;Database=jk_configurations;Username=postgres;Password=change-me-strong-password;"
+  DB_CONNECTION_STRING: "Host=postgres;Port=5432;Database=jk_three_tier;Username=postgres;Password=change-me-strong-password;"
   ```
 - **Deploy Postgres, backend, frontend**
   ```bash
@@ -170,7 +170,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   - Ensure `.env`:
   ```env
   POSTGRES_PASSWORD=...
-  DB_CONNECTION_STRING=Host=postgres;Port=5432;Database=jk_configurations;Username=postgres;Password=...;
+  DB_CONNECTION_STRING=Host=postgres;Port=5432;Database=jk_three_tier;Username=postgres;Password=...;
   ```
 
   - Then:
@@ -212,7 +212,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
 
   # run it
   kubectl exec -it -n jk-three-tier <postgres-pod> -- \
-    psql -U postgres -d jk_configurations -f /init.sql
+    psql -U postgres -d 'jk_three_tier' -f /init.sql
 
   # restart backend so it re-queries with schema present
   kubectl delete pod -n jk-three-tier -l app=backend
@@ -304,7 +304,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
 
   # 2) Verify the data is still there
   kubectl exec -it -n jk-three-tier <postgres-pod> -- \
-    psql -U postgres -d jk_configurations -c 'SELECT * FROM "Configuration";'
+    psql -U postgres -d 'jk_three_tier' -c 'SELECT * FROM "Configuration";'
   ```
 
   If the `HelloWorld` row is still present, the PVC (`postgres-data-pvc`) is working and your DB is persistent.
@@ -331,7 +331,7 @@ This document summarizes the **local Docker** and **k3s** workflows for the jk-t
   ```
 - **Exec into pods**
   ```bash
-  kubectl exec -it -n jk-three-tier postgres-... -- psql -U postgres -d jk_configurations
+  kubectl exec -it -n jk-three-tier postgres-... -- psql -U postgres -d 'jk_three_tier'
   ```
 - **Apply manifests**
   ```bash
