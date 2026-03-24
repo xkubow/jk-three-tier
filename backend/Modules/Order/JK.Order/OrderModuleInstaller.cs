@@ -5,6 +5,7 @@ using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,21 @@ public class OrderModuleInstaller : IModuleInstaller
     public void MapGrpcServices(WebApplication app)
     {
         app.MapGrpcService<OrderGrpcService>();
+    }
+
+    public void MapHealthChecks(WebApplication app)
+    {
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = _ => false
+        });
+
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = _ => true
+        });
+
+        app.MapHealthChecks("/health");
     }
 }
 

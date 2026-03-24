@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: order
   namespace: jk-three-tier
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: order
   template:
     metadata:
       labels:
-        app: backend
+        app: order
     spec:
       containers:
-        - name: backend
-          image: jk-backend:local
+        - name: order
+          image: jk-order:local
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -27,30 +27,21 @@ spec:
                 secretKeyRef:
                   name: jk-db-secret
                   key: DB_CONNECTION_STRING
-          readinessProbe:
-            httpGet:
-              path: /api/configuration/HelloWorld
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /api/configuration/HelloWorld
-              port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 20
+            - name: ConfigurationProvider__ServerUrl
+              value: "http://configuration:8081"
+            - name: GrpcClientConfiguration__UseSecureSslChannel
+              value: "false"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: order
   namespace: jk-three-tier
 spec:
   type: ClusterIP
   selector:
-    app: backend
+    app: order
   ports:
     - name: http
       port: 8080
       targetPort: 8080
-

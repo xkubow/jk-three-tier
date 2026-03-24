@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY Backend.csproj ./
+COPY Playground.csproj ./
 RUN dotnet restore
 
 COPY . ./
@@ -14,4 +14,4 @@ COPY --from=build /app/publish ./
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "Backend.dll"]
+ENTRYPOINT ["dotnet", "Playground.dll"]

@@ -40,6 +40,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
 builder.Services.AddScoped<IConfigurationStore, ConfigurationStore>();
 builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -66,6 +67,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.MapHealthChecks("/healthz");
 app.MapControllers();
 
 app.Run();

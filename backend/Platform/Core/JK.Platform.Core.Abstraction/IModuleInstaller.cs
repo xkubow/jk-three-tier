@@ -10,4 +10,5 @@ public interface IModuleInstaller
     void RegisterServices(IServiceCollection services, IConfiguration configuration);
     void RegisterControllers(IMvcBuilder mvcBuilder);
     void MapGrpcServices(WebApplication app);
+    void MapHealthChecks(WebApplication app);
 }
