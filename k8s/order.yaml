@@ -26,7 +26,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: jk-db-secret
-                  key: DB_CONNECTION_STRING
+                  key: ORDER_DB_CONNECTION_STRING
             - name: ConfigurationProvider__ServerUrl
               value: "http://configuration:8081"
             - name: GrpcClientConfiguration__UseSecureSslChannel

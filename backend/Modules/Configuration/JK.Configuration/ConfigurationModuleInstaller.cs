@@ -1,4 +1,5 @@
 using FluentValidation;
+using JK.Backend.Migrations;
 using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
@@ -15,16 +16,17 @@ namespace JK.Configuration;
 public class ConfigurationModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "Configuration";
+
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(ConfigurationModuleInstaller).Assembly;
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
-        services.AddDbContext<ConfigurationDbContext>(options =>
-        {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            options.UseNpgsql(connectionString);
-        });
+        services.AddDbContext<ConfigurationDbContext>(options => { options.UseNpgsql(connectionString); });
 
+        services.AddBackendMigrations(connectionString, assembly);
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
@@ -44,15 +46,9 @@ public class ConfigurationModuleInstaller : IModuleInstaller
 
     public void MapHealthChecks(WebApplication app)
     {
-        app.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = _ => false
-        });
+        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = _ => true
-        });
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = _ => true });
 
         app.MapHealthChecks("/health");
     }

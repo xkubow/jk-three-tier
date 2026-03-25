@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>JK.Configuration.CZ</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Local-Dev|Any CPU'">
+    <DefineConstants>$(DefineConstants);LOCAL_DEV</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
@@ -20,6 +23,8 @@
     <ProjectReference Include="..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
     <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
     <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Swagger\JK.Platform.Rest.Swagger.csproj" />
+    <ProjectReference Include="..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\..\Modules\Configuration\JK.Configuration.Database\JK.Configuration.Database.csproj" />
   </ItemGroup>
 
 </Project>

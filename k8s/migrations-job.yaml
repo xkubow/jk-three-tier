@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: backend-migrations
+  namespace: jk-three-tier
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrations
+          image: jk-backend-migrations:local
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jk-db-secret
+                  key: POSTGRES_PASSWORD
