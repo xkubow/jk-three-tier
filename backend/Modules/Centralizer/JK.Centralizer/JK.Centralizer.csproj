@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JK.Centralizer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JK.Centralizer.Contracts\JK.Centralizer.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Abstraction\JK.Platform.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
+    <!-- Add other module clients here as they are created -->
+    <ProjectReference Include="..\..\Order\JK.Order.Client.Grpc\JK.Order.Client.Grpc.csproj" />
+    <ProjectReference Include="..\..\Order\JK.Order.Contracts\JK.Order.Contracts.csproj" />
+    <ProjectReference Include="..\..\Configuration\JK.Configuration.Client.Grpc\JK.Configuration.Client.Grpc.csproj" />
+    <ProjectReference Include="..\..\Configuration\JK.Configuration.Contracts\JK.Configuration.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

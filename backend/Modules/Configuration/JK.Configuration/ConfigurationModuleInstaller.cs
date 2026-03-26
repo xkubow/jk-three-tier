@@ -20,13 +20,14 @@ public class ConfigurationModuleInstaller : IModuleInstaller
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(ConfigurationModuleInstaller).Assembly;
+        var databaseAssembly = typeof(ConfigurationDatabaseMarker).Assembly;
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
         services.AddDbContext<ConfigurationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-        services.AddBackendMigrations(connectionString, assembly);
+        services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
