@@ -9,6 +9,8 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="14.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+      <ProjectReference Include="..\..\Core\JK.Platform.Core.Persistence\JK.Platform.Core.Persistence.csproj" />
+      <ProjectReference Include="..\..\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
     </ItemGroup>
 
 </Project>

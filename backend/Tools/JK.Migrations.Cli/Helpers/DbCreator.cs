@@ -10,6 +10,7 @@ public static partial class DbCreator
 
     public static void EnsureDbIsCreated(string connectionString)
     {
+        Console.WriteLine($"connection string '{connectionString}'");
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         var targetBuilder = new NpgsqlConnectionStringBuilder(connectionString);

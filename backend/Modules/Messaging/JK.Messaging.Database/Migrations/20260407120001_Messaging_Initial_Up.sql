@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS "Messaging" (
+    "Id" UUID PRIMARY KEY,
+    "ThreadId" UUID NOT NULL,
+    "SenderId" UUID NOT NULL,
+    "Content" VARCHAR(8000) NOT NULL,
+    "Status" VARCHAR(50) NOT NULL,
+    "CreatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+    "UpdatedAt" TIMESTAMP WITH TIME ZONE NULL
+);

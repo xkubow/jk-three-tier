@@ -5,6 +5,7 @@ using JK.Order.Database;
 using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public class OrderModuleInstaller : IModuleInstaller
         services.AddValidatorsFromAssembly(assembly);
 
         services.RegisterInjectableServices(assembly);
+        services.AddUnitOfWork();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

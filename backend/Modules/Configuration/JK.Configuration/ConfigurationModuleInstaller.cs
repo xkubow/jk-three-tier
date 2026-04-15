@@ -4,6 +4,7 @@ using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -33,6 +34,7 @@ public class ConfigurationModuleInstaller : IModuleInstaller
         services.AddValidatorsFromAssembly(assembly);
 
         services.RegisterInjectableServices(assembly);
+        services.AddUnitOfWork();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

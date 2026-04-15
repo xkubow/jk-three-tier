@@ -1,32 +1,23 @@
 using Grpc.Core;
-using Grpc.Net.Client;
-using Grpc.Net.Client.Configuration;
+using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace JK.Platform.Grpc.Client.Factory;
 
-using JK.Platform.Grpc.Client;
-
+[Injectable(lifetime: ServiceLifetime.Singleton)]
 public sealed class GrpcClientFactory<TClient> : IGrpcClientFactory<TClient>
     where TClient : ClientBase<TClient>
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IGrpcChannelFactory _channelFactory;
     private readonly ILogger<GrpcClientFactory<TClient>> _logger;
-    private readonly IOptionsMonitor<GrpcClientConfiguration> _configuration;
-
-    private readonly Dictionary<string, GrpcChannel> _channels = new();
-    private static readonly object _lock = new();
 
     public GrpcClientFactory(
-        IServiceProvider serviceProvider,
-        ILogger<GrpcClientFactory<TClient>> logger,
-        IOptionsMonitor<GrpcClientConfiguration> configuration)
+        IGrpcChannelFactory channelFactory,
+        ILogger<GrpcClientFactory<TClient>> logger)
     {
-        _serviceProvider = serviceProvider;
+        _channelFactory = channelFactory;
         _logger = logger;
-        _configuration = configuration;
     }
 
     public TClient GetClient(string channelUrl)
@@ -36,91 +27,20 @@ public sealed class GrpcClientFactory<TClient> : IGrpcClientFactory<TClient>
             throw new InvalidOperationException("gRPC URL cannot be null or empty.");
         }
 
-        var channel = GetOrCreateChannel(channelUrl);
+        var invoker = _channelFactory.GetInvoker(channelUrl);
 
-        var client = (TClient?)Activator.CreateInstance(typeof(TClient), channel);
-
+        var client = (TClient?)Activator.CreateInstance(typeof(TClient), invoker);
         if (client is null)
         {
-            throw new InvalidOperationException($"Failed to create gRPC client {typeof(TClient)}");
+            _logger.LogError(
+                "Failed to create gRPC client of type {ClientType} for {ChannelUrl}",
+                typeof(TClient).FullName,
+                channelUrl);
+
+            throw new InvalidOperationException(
+                $"Failed to create gRPC client '{typeof(TClient).FullName}'.");
         }
 
         return client;
-    }
-
-    private GrpcChannel GetOrCreateChannel(string url)
-    {
-        lock (_lock)
-        {
-            if (_channels.TryGetValue(url, out var existing))
-            {
-                if (existing.State != ConnectivityState.Shutdown &&
-                    existing.State != ConnectivityState.TransientFailure)
-                {
-                    return existing;
-                }
-
-                _logger.LogWarning("Recreating gRPC channel for {Url}", url);
-                existing.Dispose();
-            }
-
-            var channel = CreateChannel(url);
-            _channels[url] = channel;
-
-            return channel;
-        }
-    }
-
-    private GrpcChannel CreateChannel(string url)
-    {
-        var config = _configuration.CurrentValue;
-
-        var dnsUrl = config.UseSecureSslChannel
-            ? url.Replace("https://", "dns:///")
-            : url.Replace("http://", "dns:///");
-
-        var retryPolicy = new RetryPolicy
-        {
-            MaxAttempts = config.RetryMaxAttempts,
-            InitialBackoff = TimeSpan.FromSeconds(2),
-            MaxBackoff = TimeSpan.FromSeconds(10),
-            BackoffMultiplier = 1.5,
-            RetryableStatusCodes = { StatusCode.Unavailable }
-        };
-
-        var handler = new SocketsHttpHandler
-        {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(config.PooledConnectionLifetimeMinutes),
-            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(config.PooledConnectionIdleTimeoutSeconds),
-            MaxConnectionsPerServer = config.MaxConnectionsPerServer,
-            EnableMultipleHttp2Connections = true
-        };
-
-        if (!config.UseSecureSslChannel)
-        {
-            handler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
-            {
-                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-            };
-        }
-
-        var channel = GrpcChannel.ForAddress(dnsUrl, new GrpcChannelOptions
-        {
-            Credentials = config.UseSecureSslChannel
-                ? ChannelCredentials.SecureSsl
-                : ChannelCredentials.Insecure,
-
-            HttpHandler = handler,
-
-            ServiceConfig = new ServiceConfig
-            {
-                MethodConfigs = { new MethodConfig { Names = { MethodName.Default }, RetryPolicy = retryPolicy } },
-                LoadBalancingConfigs = { new RoundRobinConfig() }
-            },
-
-            ServiceProvider = _serviceProvider
-        });
-
-        return channel;
     }
 }
