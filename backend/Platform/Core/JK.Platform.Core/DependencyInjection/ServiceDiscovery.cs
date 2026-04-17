@@ -12,21 +12,17 @@ public static class ServiceDiscovery
     {
         var injectableTypes = SafeGetTypes(assembly)
             .Where(t => t.IsClass && !t.IsAbstract)
-            .Select(t => new
-            {
-                Type = t,
-                Attribute = t.GetCustomAttribute<InjectableAttribute>()
-            })
+            .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<InjectableAttribute>() })
             .Where(x => x.Attribute is not null)
             .ToList();
 
         foreach (var item in injectableTypes)
         {
+            var implementationType = NormalizeImplementationType(item.Type);
             var serviceType = ResolveServiceType(item.Type);
             var lifetime = item.Attribute!.Lifetime;
 
-            var descriptor = new ServiceDescriptor(serviceType, item.Type, lifetime);
-            services.Add(descriptor);
+            services.Add(new ServiceDescriptor(serviceType, implementationType, lifetime));
         }
 
         return services;
@@ -44,6 +40,13 @@ public static class ServiceDiscovery
         }
     }
 
+    private static Type NormalizeImplementationType(Type implementationType)
+    {
+        return implementationType.IsGenericType
+            ? implementationType.GetGenericTypeDefinition()
+            : implementationType;
+    }
+
     private static Type ResolveServiceType(Type implementationType)
     {
         var interfaces = implementationType
@@ -51,15 +54,62 @@ public static class ServiceDiscovery
             .Where(i => !IsFrameworkInterface(i))
             .ToArray();
 
-        if (interfaces.Length == 0) return implementationType;
+        if (interfaces.Length == 0)
+        {
+            return NormalizeServiceType(implementationType);
+        }
 
-        // Try to find the interface that matches the name of the implementation
-        // e.g., OrderRepository -> IOrderRepository
-        var matchingInterface = interfaces.FirstOrDefault(i => 
-            i.Name.Equals($"I{implementationType.Name}", StringComparison.OrdinalIgnoreCase) && 
-            i.Namespace == implementationType.Namespace);
+        var normalizedImplementationType = NormalizeImplementationType(implementationType);
+        var implementationName = normalizedImplementationType.Name;
 
-        return matchingInterface ?? interfaces.FirstOrDefault() ?? implementationType;
+        if (normalizedImplementationType.IsGenericTypeDefinition)
+        {
+            implementationName = RemoveGenericArity(implementationName);
+        }
+
+        var matchingInterface = interfaces.FirstOrDefault(i =>
+        {
+            var interfaceType = NormalizeServiceType(i);
+            var interfaceName = interfaceType.Name;
+
+            if (interfaceType.IsGenericTypeDefinition)
+            {
+                interfaceName = RemoveGenericArity(interfaceName);
+            }
+
+            return interfaceName.Equals($"I{implementationName}", StringComparison.OrdinalIgnoreCase)
+                   && (i.Namespace == implementationType.Namespace || i.Namespace == implementationType.Namespace + ".Abstractions");
+
+        }) ?? interfaces.FirstOrDefault(i =>
+        {
+            var interfaceType = NormalizeServiceType(i);
+            var interfaceName = interfaceType.Name;
+
+            if (interfaceType.IsGenericTypeDefinition)
+            {
+                interfaceName = RemoveGenericArity(interfaceName);
+            }
+
+            return interfaceName.Equals($"I{implementationName}", StringComparison.OrdinalIgnoreCase);
+        });
+
+        return NormalizeServiceType(matchingInterface ?? interfaces.First());
+    }
+
+    private static Type NormalizeServiceType(Type serviceType)
+    {
+        if (serviceType.IsGenericType)
+        {
+            return serviceType.GetGenericTypeDefinition();
+        }
+
+        return serviceType;
+    }
+
+    private static string RemoveGenericArity(string name)
+    {
+        var index = name.IndexOf('`');
+        return index >= 0 ? name[..index] : name;
     }
 
     private static bool IsFrameworkInterface(Type type)

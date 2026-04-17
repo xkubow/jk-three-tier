@@ -4,6 +4,7 @@ using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -20,18 +21,20 @@ public class ConfigurationModuleInstaller : IModuleInstaller
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(ConfigurationModuleInstaller).Assembly;
+        var databaseAssembly = typeof(ConfigurationDatabaseMarker).Assembly;
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
         services.AddDbContext<ConfigurationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-        services.AddBackendMigrations(connectionString, assembly);
+        services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
         services.RegisterInjectableServices(assembly);
+        services.AddUnitOfWork();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

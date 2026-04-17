@@ -5,6 +5,7 @@ using JK.Order.Database;
 using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -20,19 +21,21 @@ public class OrderModuleInstaller : IModuleInstaller
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(OrderAssemblyMarker).Assembly;
+        var databaseAssembly = typeof(OrderDatabaseMarker).Assembly;
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
         services.AddDbContext<OrderDbContext>(options => { options.UseNpgsql(connectionString); });
 
-        services.AddBackendMigrations(connectionString, assembly);
+        services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
 
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
         services.RegisterInjectableServices(assembly);
+        services.AddUnitOfWork();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

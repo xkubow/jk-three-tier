@@ -5,6 +5,8 @@ namespace JK.Platform.Grpc.Client;
 public sealed class GrpcClientConfiguration
 {
     public bool UseSecureSslChannel { get; set; } = false;
+    public bool LogRequestData { get; set; } = true;
+    public bool LogResponseData { get; set; } = true;
 
     public int RetryMaxAttempts { get; set; } = 3;
 

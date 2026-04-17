@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging
+  namespace: jk-three-tier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging
+  template:
+    metadata:
+      labels:
+        app: messaging
+    spec:
+      containers:
+        - name: messaging
+          image: jk-messaging:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8081
+              name: grpc
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "K8s"
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: jk-db-secret
+                  key: MESSAGING_DB_CONNECTION_STRING
+            - name: ConfigurationProvider__ServerUrl
+              value: "http://configuration:8081"
+            - name: GrpcClientConfiguration__UseSecureSslChannel
+              value: "false"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging
+  namespace: jk-three-tier
+spec:
+  type: ClusterIP
+  selector:
+    app: messaging
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: grpc
+      port: 8081
+      targetPort: 8081

@@ -40,9 +40,7 @@ public class GrpcExceptionInterceptor : Interceptor
 
     private static bool IsTransientDbFailure(Exception ex)
     {
-        // Based on the issue description, the exception is InvalidOperationException with a message about transient failure
-        // and contains NpgsqlException -> TimeoutException
-        return ex.Message.Contains("likely due to a transient failure") || 
+        return ex.Message.Contains("likely due to a transient failure") ||
                ex.InnerException is { Message: var innerMsg } && innerMsg.Contains("Failed to connect");
     }
 }

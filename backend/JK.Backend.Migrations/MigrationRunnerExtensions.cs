@@ -26,7 +26,7 @@ public static class MigrationRunnerExtensions
                     .WithGlobalConnectionString(connectionString);
 
                 foreach (var assembly in migrationAssemblies)
-                    rb.ScanIn(assembly).For.Migrations();
+                    rb.ScanIn(assembly).For.Migrations().For.EmbeddedResources();
             })
             .AddLogging(lb => lb.AddFluentMigratorConsole());
 

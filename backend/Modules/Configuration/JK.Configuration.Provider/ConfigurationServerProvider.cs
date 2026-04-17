@@ -1,11 +1,8 @@
 using System.Reflection;
 using Grpc.Core;
-using Grpc.Net.Client.Balancer;
 using JK.Configuration.Proto;
-using JK.Platform.Grpc.Client;
 using JK.Platform.Grpc.Client.Factory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using static JK.Configuration.Proto.ConfigurationGrpc;
 
@@ -31,7 +28,9 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
     private CancellationTokenSource? _cts;
     private Task? _refreshWorker;
 
-    public ConfigurationServerProvider(IConfigurationBuilder configurationBuilder)
+    public ConfigurationServerProvider(
+        IConfigurationBuilder configurationBuilder,
+        ConfigurationServerSource configurationServerSource)
     {
         var bootstrapBuilder = new ConfigurationBuilder();
 
@@ -53,19 +52,9 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
 
         _logger = loggerFactory.CreateLogger<ConfigurationServerProvider>();
 
-        var grpcClientConfiguration = configuration
-            .GetSection("GrpcClientConfiguration")
-            .Get<GrpcClientConfiguration>()
-            ?? new GrpcClientConfiguration();
-
-        var serviceProvider = new ServiceCollection()
-            .AddSingleton<ResolverFactory>(new DnsResolverFactory(TimeSpan.FromSeconds(5)))
-            .BuildServiceProvider();
-
-        _grpcClientFactory = new GrpcClientFactory<ConfigurationGrpcClient>(
-            serviceProvider,
-            loggerFactory.CreateLogger<GrpcClientFactory<ConfigurationGrpcClient>>(),
-            new GrpcClientConfigurationOptionsMonitor(grpcClientConfiguration));
+        _grpcClientFactory = configurationServerSource.GrpcClientFactory
+            ?? throw new InvalidOperationException(
+                "IGrpcClientFactory<ConfigurationGrpcClient> is not configured.");
 
         _reloadEnabled = configuration.GetValue<bool?>("ConfigurationProvider:ReloadEnabled") ?? true;
         _configurationServerUrl = configuration["ConfigurationProvider:ServerUrl"]

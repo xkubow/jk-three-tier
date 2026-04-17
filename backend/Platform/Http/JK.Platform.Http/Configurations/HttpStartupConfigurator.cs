@@ -1,5 +1,4 @@
 using JK.Platform.Core.Abstraction;
-using JK.Platform.Core.AspNetCore.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;

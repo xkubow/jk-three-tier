@@ -1,6 +1,5 @@
 using System.Reflection;
 using JK.Platform.Core.Abstraction;
-using JK.Platform.Core.AspNetCore.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;

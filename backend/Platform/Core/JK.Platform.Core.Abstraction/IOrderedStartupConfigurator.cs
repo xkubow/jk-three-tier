@@ -1,4 +1,4 @@
-namespace JK.Platform.Core.AspNetCore.Abstractions;
+namespace JK.Platform.Core.Abstraction;
 
 public interface IOrderedStartupConfigurator
 {

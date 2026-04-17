@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JK.Messaging.CZ</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Local-Dev|Any CPU'">
+    <DefineConstants>$(DefineConstants);LOCAL_DEV</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Orleans.Reminders.AdoNet" Version="10.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Grpc.JsonTranscoding" Version="9.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.9.14" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Configuration\JK.Configuration.Provider\JK.Configuration.Provider.csproj" />
+    <ProjectReference Include="..\..\Modules\Messaging\JK.Messaging\JK.Messaging.csproj" />
+    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.AspNetCore\JK.Platform.Core.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Platform\Grpc\JK.Platform.Grpc.Client\JK.Platform.Grpc.Client.csproj" />
+    <ProjectReference Include="..\..\Platform\Grpc\JK.Platform.Grpc.Server\JK.Platform.Grpc.Server.csproj" />
+    <ProjectReference Include="..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
+    <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
+    <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Swagger\JK.Platform.Rest.Swagger.csproj" />
+    <ProjectReference Include="..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\..\Modules\Messaging\JK.Messaging.Database\JK.Messaging.Database.csproj" />
+  </ItemGroup>
+
+</Project>

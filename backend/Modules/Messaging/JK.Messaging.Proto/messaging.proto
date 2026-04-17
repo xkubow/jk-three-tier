@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+option csharp_namespace = "JK.Messaging.Proto";
+
+package jk.messaging;
+
+import "google/api/annotations.proto";
+
+service MessagingGrpc {
+  rpc GetById (GetMessagingByIdRequest) returns (MessagingMessage) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/messaging/{id}"
+    };
+  }
+
+  rpc List (ListMessagingRequest) returns (ListMessagingResponse) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/messaging"
+    };
+  }
+
+  rpc Create (CreateMessagingRequest) returns (MessagingMessage) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/messaging"
+      body: "*"
+    };
+  }
+
+  rpc Update (UpdateMessagingRequest) returns (MessagingMessage) {
+    option (google.api.http) = {
+      put: "/api/grpc/v1/messaging/{id}"
+      body: "*"
+    };
+  }
+
+  rpc Delete (DeleteMessagingRequest) returns (DeleteMessagingResponse) {
+    option (google.api.http) = {
+      delete: "/api/grpc/v1/messaging/{id}"
+    };
+  }
+
+  rpc EchoViaOrleans (EchoViaOrleansRequest) returns (EchoViaOrleansResponse) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/messaging/orleans/echo"
+      body: "*"
+    };
+  }
+
+  rpc RegisterApiMessage (RegisterApiMessageRequest) returns (RegisterApiMessageResponse) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/messaging/api-message/register"
+      body: "*"
+    };
+  }
+
+  rpc SendApiMessage (SendApiMessageRequest) returns (SendApiMessageResponse) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/messaging/api-message/send"
+      body: "*"
+    };
+  }
+}
+
+message MessagingMessage {
+  string id = 1;
+  string thread_id = 2;
+  string sender_id = 3;
+  string content = 4;
+  string status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message GetMessagingByIdRequest {
+  string id = 1;
+}
+
+message ListMessagingRequest {
+  string search_term = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string sort_by = 4;
+  string sort_direction = 5;
+}
+
+message ListMessagingResponse {
+  repeated MessagingMessage items = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_count = 4;
+}
+
+message CreateMessagingRequest {
+  string thread_id = 1;
+  string sender_id = 2;
+  string content = 3;
+}
+
+message UpdateMessagingRequest {
+  string id = 1;
+  string status = 2;
+}
+
+message DeleteMessagingRequest {
+  string id = 1;
+}
+
+message DeleteMessagingResponse {
+  bool success = 1;
+}
+
+message EchoViaOrleansRequest {
+  string thread_id = 1;
+  string sender_id = 2;
+  string content = 3;
+}
+
+message EchoViaOrleansResponse {
+  string result = 1;
+}
+
+message RegisterApiMessageRequest {
+  string cron = 1;
+}
+
+message RegisterApiMessageResponse {
+  bool success = 1;
+}
+
+message SendApiMessageRequest {
+  string url = 1;
+  optional string grain_id = 2;
+}
+
+message SendApiMessageResponse {
+}
