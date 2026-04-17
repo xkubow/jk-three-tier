@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Backend.Database.Entities;
+namespace JK.Playground.Database.Entities;
 
 [Table("Configuration")]
 public class ConfigurationEntity

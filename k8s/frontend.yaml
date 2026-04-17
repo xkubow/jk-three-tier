@@ -19,6 +19,7 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+              name: http
 ---
 apiVersion: v1
 kind: Service
@@ -33,4 +34,3 @@ spec:
     - name: http
       port: 80
       targetPort: 80
-

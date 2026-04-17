@@ -1,6 +1,6 @@
 using Backend.Models;
 
-namespace Backend.Database.Repositories;
+namespace JK.Playground.Database.Repositories;
 
 public interface IConfigurationRepository
 {

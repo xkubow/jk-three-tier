@@ -19,7 +19,10 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+              name: http
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "K8s"
             - name: ASPNETCORE_URLS
               value: "http://+:8080"
             - name: ConnectionStrings__DefaultConnection
@@ -31,6 +34,18 @@ spec:
               value: "http://configuration:8081"
             - name: GrpcClientConfiguration__UseSecureSslChannel
               value: "false"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service

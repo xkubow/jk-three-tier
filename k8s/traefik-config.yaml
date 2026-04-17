@@ -8,7 +8,7 @@ spec:
     ports:
       web:
         exposedPort: 8089
-      postgres:           # Toto je název entryPointu
-        port: 5432        # Port uvnitř Traefik podu
-        exposedPort: 30432 # Port viditelný ve Windows
+      postgres:
+        port: 5432
+        exposedPort: 30432
         protocol: TCP

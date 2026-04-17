@@ -41,6 +41,10 @@ echo.
 call :runModule Order jk_order ./Modules/Order/JK.Order.Database/JK.Order.Database.csproj ./Modules/Order/JK.Order.Database/bin/%CONFIGURATION%/net9.0/JK.Order.Database.dll
 if errorlevel 1 goto :error
 
+echo.
+call :runModule Messaging jk_messaging ./Modules/Messaging/JK.Messaging.Database/JK.Messaging.Database.csproj ./Modules/Messaging/JK.Messaging.Database/bin/%CONFIGURATION%/net9.0/JK.Messaging.Database.dll
+if errorlevel 1 goto :error
+
 echo All migrations finished successfully.
 exit /b 0
 

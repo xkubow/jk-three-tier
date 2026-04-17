@@ -1,6 +1,6 @@
-using Backend.Database.Repositories;
+using JK.Playground.Database.Repositories;
 
-namespace Backend.Database;
+namespace JK.Playground.Database;
 
 public interface IUnitOfWork : IDisposable
 {

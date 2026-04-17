@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - postgres
   routes:
-  - match: HostSNI(`*`)
-    services:
-    - name: postgres      # Název tvé DB služby
-      port: 5432          # Port tvé DB služby
+    - match: HostSNI(`*`)
+      services:
+        - name: postgres
+          port: 5432

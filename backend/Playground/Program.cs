@@ -1,9 +1,10 @@
 using Backend.Configurations;
 using Backend.Database;
-using Backend.Database.Repositories;
 using Backend.Services;
 using Backend.Stores;
 using JK.Platform.Rest.Server.Configurations;
+using JK.Playground.Database;
+using JK.Playground.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ builder.Services.AddCors(options =>
 
 // Add services to the container (REST platform)
 // builder.Services.AddJkRestApi("api");
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Typed Configuration
