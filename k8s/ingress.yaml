@@ -6,6 +6,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
+  ingressClassName: traefik
   rules:
     - http:
         paths:
@@ -16,7 +17,6 @@ spec:
                 name: configuration
                 port:
                   number: 8080
-
           - path: /api/order/swagger
             pathType: Prefix
             backend:
@@ -24,7 +24,13 @@ spec:
                 name: order
                 port:
                   number: 8080
-
+          - path: /api/messaging/swagger
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging
+                port:
+                  number: 8080
           - path: /api/configuration
             pathType: Prefix
             backend:
@@ -32,7 +38,6 @@ spec:
                 name: configuration
                 port:
                   number: 8080
-
           - path: /api/order
             pathType: Prefix
             backend:
@@ -40,7 +45,13 @@ spec:
                 name: order
                 port:
                   number: 8080
-
+          - path: /api/messaging
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging
+                port:
+                  number: 8080
           - path: /
             pathType: Prefix
             backend:

@@ -1,10 +1,10 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Backend.Database.Entities;
+using Backend.Database;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Database.Repositories;
+namespace JK.Playground.Database.Repositories;
 
 public class ConfigurationRepository : IConfigurationRepository
 {

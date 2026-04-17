@@ -1,5 +1,6 @@
 using AutoMapper;
-using Backend.Database.Repositories;
+using JK.Playground.Database;
+using JK.Playground.Database.Repositories;
 
 namespace Backend.Database;
 

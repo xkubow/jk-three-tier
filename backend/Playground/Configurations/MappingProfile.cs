@@ -1,6 +1,6 @@
 using AutoMapper;
-using Backend.Database.Entities;
 using Backend.Models;
+using JK.Playground.Database.Entities;
 
 namespace Backend.Configurations;
 

@@ -33,18 +33,22 @@ fi
 MODULE_NAMES=(
   "Configuration"
   "Order"
+  "Messaging"
 )
 MODULE_DATABASES=(
   "jk_configuration"
   "jk_order"
+  "jk_messaging"
 )
 MODULE_PROJECTS=(
   "./Modules/Configuration/JK.Configuration.Database/JK.Configuration.Database.csproj"
   "./Modules/Order/JK.Order.Database/JK.Order.Database.csproj"
+  "./Modules/Messaging/JK.Messaging.Database/JK.Messaging.Database.csproj"
 )
 MODULE_ASSEMBLIES=(
   "./Modules/Configuration/JK.Configuration.Database/bin/${CONFIGURATION}/net9.0/JK.Configuration.Database.dll"
   "./Modules/Order/JK.Order.Database/bin/${CONFIGURATION}/net9.0/JK.Order.Database.dll"
+  "./Modules/Messaging/JK.Messaging.Database/bin/${CONFIGURATION}/net9.0/JK.Messaging.Database.dll"
 )
 
 echo ">>> Building migration CLI: ${CLI_PROJECT}"

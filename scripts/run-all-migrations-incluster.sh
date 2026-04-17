@@ -15,4 +15,10 @@ dotnet /app/cli/JK.Migrations.Cli.dll \
   --assembly "/app/modules/order/JK.Order.Database.dll" \
   --ensure-db
 
+echo "Running Messaging migrations..."
+dotnet /app/cli/JK.Migrations.Cli.dll \
+  --connection "Host=postgres;Port=5432;Database=jk_messaging;Username=postgres;Password=${DB_PASSWORD}" \
+  --assembly "/app/modules/messaging/JK.Messaging.Database.dll" \
+  --ensure-db
+
 echo "All migrations finished."
