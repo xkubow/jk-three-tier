@@ -1,3 +1,4 @@
+using JK.Platform.Rest.Swagger.Filters;
 using JK.Platform.Rest.Swagger.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSwaggerGen(options =>
         {
+            options.OperationFilter<IdempotencyHeaderOperationFilter>();
             options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "."));
             if (swaggerConfiguration.EnableAnnotations)
             {

@@ -3,6 +3,7 @@ using JK.Configuration.Provider;
 using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
+using JK.Platform.Http.Extensions;
 using JK.Platform.Rest.Server.Configurations;
 using JK.Platform.Rest.Swagger.Configurations;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -55,6 +56,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UsePlatformSwagger();
+app.UseIdempotency();
 
 app.MapControllers();
 
@@ -65,4 +67,3 @@ foreach (var installer in installers)
 }
 
 app.Run();
-
