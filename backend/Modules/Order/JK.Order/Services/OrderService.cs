@@ -1,4 +1,6 @@
 using AutoMapper;
+using JK.Messaging.Client.Grpc;
+using JK.Messaging.Contracts;
 using JK.Order.Configurations;
 using JK.Order.Contracts;
 using JK.Order.Database.Repositories;
@@ -17,12 +19,14 @@ public class OrderService : IOrderService
     private readonly IUnitOfWork<OrderDbContext> _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IOptionsSnapshot<OrderConfiguration> _configuration;
+    private readonly IApiMessageTaskGrpcClient _apiMessageTaskGrpcClient;
 
-    public OrderService(IUnitOfWorkFactory<OrderDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OrderConfiguration> configuration)
+    public OrderService(IUnitOfWorkFactory<OrderDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OrderConfiguration> configuration, IApiMessageTaskGrpcClient apiMessageTaskGrpcClient)
     {
         _unitOfWork = unitOfWorkFactory.Create();
         _mapper = mapper;
         _configuration = configuration;
+        _apiMessageTaskGrpcClient = apiMessageTaskGrpcClient;
     }
 
     public async Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -32,10 +36,10 @@ public class OrderService : IOrderService
         return _mapper.Map<OrderDto>(model);
     }
 
-    public async Task<PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
+    public async Task<Contracts.PagedResponse<OrderDto>> ListAsync(ListOrdersRequest request, CancellationToken cancellationToken = default)
     {
         var pagedResponse = await _unitOfWork.GetRepository<IOrderRepository>().ListAsync(request, cancellationToken);
-        return _mapper.Map<PagedResponse<OrderDto>>(pagedResponse);
+        return _mapper.Map<Contracts.PagedResponse<OrderDto>>(pagedResponse);
     }
 
     public async Task<OrderDto> CreateAsync(CreateOrderRequest request, CancellationToken cancellationToken = default)
@@ -80,6 +84,12 @@ public class OrderService : IOrderService
         await _unitOfWork.GetRepository<IOrderRepository>().DeleteAsync(id, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    public async Task Test()
+    {
+        await _apiMessageTaskGrpcClient.CreateAsync(new CreateApiMessageTaskRequest() { TaskId = Guid.NewGuid().ToString() + "_order_test", TaskName = "Test", TargetUrl = "grpcs://localhost:7005/jk.offer.OfferGrpc/Test", MaxAttempts = 3 });
+        Console.WriteLine("Test from Order Service");
     }
 }
 

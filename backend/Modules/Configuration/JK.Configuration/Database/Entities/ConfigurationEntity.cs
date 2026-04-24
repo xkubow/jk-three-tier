@@ -35,4 +35,6 @@ public class ConfigurationEntity: EntityBase<Guid>, ICreatedOnEntity, IUpdatedOn
 
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+
+    public bool IsList { get; set; }
 }

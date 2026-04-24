@@ -4,6 +4,7 @@ using JK.Order.Configurations;
 using JK.Order.Database;
 using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
+using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Core.DependencyInjection;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +21,7 @@ public class OrderModuleInstaller : IModuleInstaller
 
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        var assembly = typeof(OrderAssemblyMarker).Assembly;
+        var localAssembly = typeof(OrderAssemblyMarker).Assembly;
         var databaseAssembly = typeof(OrderDatabaseMarker).Assembly;
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -28,13 +29,19 @@ public class OrderModuleInstaller : IModuleInstaller
 
         services.AddDbContext<OrderDbContext>(options => { options.UseNpgsql(connectionString); });
 
-        services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
+        services.AddBackendMigrations(connectionString, localAssembly, databaseAssembly);
 
 
-        services.AddAutoMapper(assembly);
-        services.AddValidatorsFromAssembly(assembly);
+        services.AddAutoMapper(localAssembly);
+        services.AddValidatorsFromAssembly(localAssembly);
 
-        services.RegisterInjectableServices(assembly);
+        // Discover and register all injectable services from JK.* assemblies
+        var domainAssemblies = DomainDiscovery.FindDomainAssemblies();
+        foreach (var assembly in domainAssemblies)
+        {
+            services.RegisterInjectableServices(assembly);
+        }
+        services.RegisterInjectableServices(localAssembly);
         services.AddUnitOfWork();
     }
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JK.Offer.Client.Grpc</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.31.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JK.Offer.Contracts\JK.Offer.Contracts.csproj" />
+    <ProjectReference Include="..\JK.Offer.Proto\JK.Offer.Proto.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+option csharp_namespace = "JK.Offer.Proto";
+
+package jk.offer;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+service OfferGrpc {
+  rpc GetById (GetOfferByIdRequest) returns (OfferMessage) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/offers/{id}"
+    };
+  }
+
+  rpc List (ListOffersRequest) returns (ListOffersResponse) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/offers"
+    };
+  }
+
+  rpc Create (CreateOfferRequest) returns (OfferMessage) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/offers"
+      body: "*"
+    };
+  }
+
+  rpc Update (UpdateOfferRequest) returns (OfferMessage) {
+    option (google.api.http) = {
+      put: "/api/grpc/v1/offers/{id}"
+      body: "*"
+    };
+  }
+
+  rpc Delete (DeleteOfferRequest) returns (DeleteOfferResponse) {
+    option (google.api.http) = {
+      delete: "/api/grpc/v1/offers/{id}"
+    };
+  }
+
+  rpc Test (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/grpc/v1/offers/test"
+    };
+  }
+}
+
+message OfferMessage {
+  string id = 1;
+  string number = 2;
+  double total_amount = 3;
+  string status = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  string expires_at = 7;
+}
+
+message GetOfferByIdRequest {
+  string id = 1;
+}
+
+message ListOffersRequest {
+  string search_term = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  string sort_by = 4;
+  string sort_direction = 5;
+}
+
+message ListOffersResponse {
+  repeated OfferMessage items = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_count = 4;
+}
+
+message CreateOfferRequest {
+  string number = 1;
+  double total_amount = 2;
+  string expires_at = 3;
+}
+
+message UpdateOfferRequest {
+  string id = 1;
+  string status = 2;
+  string expires_at = 3;
+  double total_amount = 4;
+}
+
+message DeleteOfferRequest {
+  string id = 1;
+}
+
+message DeleteOfferResponse {
+  bool success = 1;
+}

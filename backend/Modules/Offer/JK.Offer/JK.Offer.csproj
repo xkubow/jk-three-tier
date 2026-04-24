@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JK.Offer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Persistence\JK.Platform.Core.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj" />
+    <ProjectReference Include="..\JK.Offer.Contracts\JK.Offer.Contracts.csproj" />
+    <ProjectReference Include="..\JK.Offer.Proto\JK.Offer.Proto.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
+    <ProjectReference Include="..\..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\JK.Offer.Database\JK.Offer.Database.csproj" />
+  </ItemGroup>
+
+</Project>

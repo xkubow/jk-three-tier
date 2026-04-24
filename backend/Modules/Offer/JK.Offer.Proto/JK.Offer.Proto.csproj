@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JK.Offer.Proto</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.31.1" />
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.16.0" GeneratePathProperty="true" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.76.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.78.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="offer.proto"
+              GrpcServices="Both"
+              AdditionalImportDirs="$(PkgGoogle_Api_CommonProtos)\content\protos" />
+  </ItemGroup>
+
+</Project>

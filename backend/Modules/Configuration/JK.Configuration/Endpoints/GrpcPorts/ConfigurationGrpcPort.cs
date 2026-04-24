@@ -62,7 +62,8 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
             ServiceCode = request.HasServiceCode ? request.ServiceCode : null,
             Key = request.Key,
             Value = request.Value,
-            CreatedBy = request.HasCreatedBy ? request.CreatedBy : null
+            CreatedBy = request.HasCreatedBy ? request.CreatedBy : null,
+            IsList = request.IsList
         };
         var item = await _service.CreateAsync(createRequest, context.CancellationToken);
         return ToMessage(item);
@@ -75,7 +76,8 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
         var updateRequest = new Contracts.UpdateConfigurationRequest
         {
             Value = request.Value,
-            UpdatedBy = request.HasUpdatedBy ? request.UpdatedBy : null
+            UpdatedBy = request.HasUpdatedBy ? request.UpdatedBy : null,
+            IsList = request.IsList
         };
         var item = await _service.UpdateAsync(id, updateRequest, context.CancellationToken);
         if (item == null)
@@ -99,7 +101,8 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
             Key = dto.Key,
             Value = dto.Value,
             CreatedAt = dto.CreatedAt.ToString("O"),
-            UpdatedAt = dto.UpdatedAt.ToString("O")
+            UpdatedAt = dto.UpdatedAt.ToString("O"),
+            IsList = dto.IsList
         };
         if (dto.MarketCode != null) msg.MarketCode = dto.MarketCode;
         if (dto.ServiceCode != null) msg.ServiceCode = dto.ServiceCode;

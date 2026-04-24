@@ -37,4 +37,6 @@ public class ApiMessageTaskEntity : EntityBase<string>
     public DateTime? FinishOn { get; set; }
 
     public DateTime? NextRetryOn { get; set; }
+    [Column(TypeName = "jsonb")]
+    public string? ConsumerResults { get; set; }
 }

@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option csharp_namespace = "JK.Messaging.Proto";
+
+package jk.messaging;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+service GrpcApiMessageTask {
+  rpc Create (CreateApiMessageTaskRequest) returns (ApiMessageTaskStateResponse) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/message-tasks"
+      body: "*"
+    };
+  }
+
+  rpc GetState (GetApiMessageTaskStateRequest) returns (ApiMessageTaskStateResponse) {
+    option (google.api.http) = {
+      get: "/api/grpc/v1/message-tasks/{task_id}"
+    };
+  }
+
+  rpc Cancel (CancelApiMessageTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/grpc/v1/message-tasks/{task_id}/cancel"
+    };
+  }
+}
+
+message CreateApiMessageTaskRequest {
+  string task_id = 1;
+  string task_name = 2;
+  string target_url = 3;
+  int32 max_attempts = 4;
+  google.protobuf.Duration delay = 5;
+  google.protobuf.Duration retry_delay = 6;
+}
+
+message GetApiMessageTaskStateRequest {
+  string task_id = 1;
+}
+
+message CancelApiMessageTaskRequest {
+  string task_id = 1;
+}
+
+message ApiMessageTaskStateResponse {
+  string task_id = 1;
+  string task_name = 2;
+  string target_url = 3;
+  ApiMessageState task_state = 4;
+  int32 attempts = 5;
+  int32 max_attempts = 6;
+  string last_error = 7;
+  google.protobuf.Timestamp created_on = 8;
+  google.protobuf.Timestamp start_time = 9;
+  google.protobuf.Timestamp finish_time = 10;
+  google.protobuf.Timestamp next_retry_on = 11;
+}
+
+enum ApiMessageState {
+  WAITING = 0;
+  CREATED = 1;
+  IN_QUEUE = 2;
+  PROCESSING = 3;
+  DONE = 4;
+  FAILED = 5;
+  DISABLED = 6;
+  SUSPENDED = 7;
+  CANCELLED = 8;
+}

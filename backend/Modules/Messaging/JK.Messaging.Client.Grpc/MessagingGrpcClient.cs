@@ -2,6 +2,7 @@ using Grpc.Net.Client;
 using JK.Messaging.Contracts;
 using JK.Messaging.Proto;
 using CreateMessagingRequest = JK.Messaging.Contracts.CreateMessagingRequest;
+using EchoViaOrleansRequest = JK.Messaging.Contracts.EchoViaOrleansRequest;
 using ListMessagingRequest = JK.Messaging.Contracts.ListMessagingRequest;
 using UpdateMessagingRequest = JK.Messaging.Contracts.UpdateMessagingRequest;
 
@@ -86,7 +87,7 @@ public class MessagingGrpcClient : IMessagingGrpcClient
         return response.Success;
     }
 
-    public async Task<string> EchoViaOrleansAsync(JK.Messaging.Contracts.EchoViaOrleansRequest request,
+    public async Task<string> EchoViaOrleansAsync(EchoViaOrleansRequest request,
         CancellationToken cancellationToken = default)
     {
         var response = await _client.EchoViaOrleansAsync(

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using JK.Platform.Core.Abstraction;
 using Microsoft.Extensions.Logging;
@@ -71,5 +72,15 @@ public static class DomainDiscovery
                && !type.IsInterface
                && !type.IsAbstract
                && type.GetConstructor(Type.EmptyTypes) is not null;
+    }
+
+    public static IReadOnlyList<Assembly> FindDomainAssemblies(ILogger? logger = null)
+    {
+        // This returns all loaded assemblies starting with "JK."
+        return AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Where(a => !a.IsDynamic)
+            .Where(a => a.GetName().Name?.StartsWith(AssemblyPrefix, StringComparison.Ordinal) == true)
+            .ToList();
     }
 }

@@ -49,6 +49,7 @@ message ConfigurationMessage {
   string updated_at = 7;
   optional string created_by = 8;
   optional string updated_by = 9;
+  bool is_list = 10;
 }
 
 message GetConfigurationByIdRequest {
@@ -78,12 +79,14 @@ message CreateConfigurationRequest {
   string key = 3;
   string value = 4;
   optional string created_by = 5;
+  bool is_list = 6;
 }
 
 message UpdateConfigurationRequest {
   string id = 1;
   string value = 2;
   optional string updated_by = 3;
+  bool is_list = 4;
 }
 
 message DeleteConfigurationRequest {
@@ -107,4 +110,5 @@ message GrpcConfigurationResponse {
 message GrpcConfiguration {
   string key = 1;
   optional string value = 2;
+  bool is_list = 3;
 }

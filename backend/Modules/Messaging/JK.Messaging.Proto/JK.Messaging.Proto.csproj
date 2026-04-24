@@ -21,6 +21,9 @@
     <Protobuf Include="messaging.proto"
               GrpcServices="Both"
               AdditionalImportDirs="$(PkgGoogle_Api_CommonProtos)\content\protos" />
+    <Protobuf Include="message.tasks.proto"
+              GrpcServices="Both"
+              AdditionalImportDirs="$(PkgGoogle_Api_CommonProtos)\content\protos" />
   </ItemGroup>
 
 </Project>

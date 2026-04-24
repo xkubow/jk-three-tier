@@ -9,6 +9,7 @@ using JK.Messaging.Models;
 using JK.Messaging.States;
 using JK.Platform.Grpc.Client.Factory;
 using JK.Platform.Persistence.EfCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace JK.Messaging.Grains;
@@ -19,17 +20,21 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
     private readonly ILogger<ApiMessageTaskGrain> _logger;
     private readonly IUnitOfWork<MessagingDbContext> _unitOfWork;
     private readonly IGrpcGenericClientFactory _genericClientFactory;
+    private readonly IConfiguration _configuration;
 
     public ApiMessageTaskGrain(
-        [PersistentState("ApiMessageTask", "orleans")] IPersistentState<ApiMessageTaskState> taskState,
+        [PersistentState("ApiMessageTask", "orleans")]
+        IPersistentState<ApiMessageTaskState> taskState,
         ILogger<ApiMessageTaskGrain> logger,
         IUnitOfWorkFactory<MessagingDbContext> unitOfWorkFactory,
-        IGrpcGenericClientFactory genericClientFactory)
+        IGrpcGenericClientFactory genericClientFactory,
+        IConfiguration configuration)
     {
         _taskState = taskState;
         _logger = logger;
         _unitOfWork = unitOfWorkFactory.Create();
         _genericClientFactory = genericClientFactory;
+        _configuration = configuration;
     }
 
     public async Task<bool> Register(RegisterApiMessageTaskCommand taskModel)
@@ -39,6 +44,8 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             _logger.LogDebug("Task {TaskId} has already been processed or registered.", taskModel.Id);
             return false;
         }
+
+
 
         var delay = taskModel.Delay ?? TimeSpan.FromSeconds(1);
         var retryDelay = taskModel.RetryDelay ?? TimeSpan.FromMinutes(3);
@@ -106,7 +113,25 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         {
             await UpdateStateAsync(entity, ApiMessageStateEnum.Processing);
 
-            await SendGrpcMessageAsync(_taskState.State.TargetUrl);
+            var consumerUrls = GetConsumerUrlsFromConfiguration(_taskState.State.TaskName);
+            var consumerResults = new Dictionary<string, string>();
+
+            foreach (var url in consumerUrls)
+            {
+                try
+                {
+                    await SendGrpcMessageAsync(url);
+                    consumerResults[url] = "Success";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send message to consumer: {Url}", url);
+                    consumerResults[url] = $"Error: {ex.Message}";
+                }
+            }
+
+            _taskState.State.ConsumerResults = consumerResults;
+            entity.ConsumerResults = System.Text.Json.JsonSerializer.Serialize(consumerResults);
 
             _taskState.State.LastError = null;
             _taskState.State.NextRetryOn = null;
@@ -142,6 +167,30 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         }
     }
 
+    private List<string> GetConsumerUrlsFromConfiguration(string taskName)
+    {
+        var configKey = $"{taskName}.Task.Consumers";
+        var configSection = _configuration.GetSection(configKey);
+
+        if (!configSection.Exists())
+        {
+            _logger.LogWarning("No consumer URLs found for configuration key: {ConfigKey}", configKey);
+            return new List<string>();
+        }
+
+        var consumerUrls = configSection.Get<List<string>>();
+
+        if (consumerUrls == null || consumerUrls.Count == 0)
+        {
+            _logger.LogWarning("No consumer URLs found for configuration key: {ConfigKey}", configKey);
+            return new List<string>();
+        }
+
+        return consumerUrls
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .ToList();
+    }
+    
     private async Task SendGrpcMessageAsync(string fullUrl)
     {
         var (channelUrl, serviceName, methodName) = ParseGrpcUrl(fullUrl);
@@ -193,6 +242,11 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         entity.CreatedOn = _taskState.State.CreatedOn;
         entity.StartOn = _taskState.State.StartTime;
 
+        if (_taskState.State.ConsumerResults != null)
+        {
+            entity.ConsumerResults = System.Text.Json.JsonSerializer.Serialize(_taskState.State.ConsumerResults);
+        }
+
         await _taskState.WriteStateAsync();
         await SaveTaskEntityAsync(entity);
     }
@@ -223,7 +277,10 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             CreatedOn = _taskState.State.CreatedOn,
             StartOn = _taskState.State.StartTime,
             FinishOn = _taskState.State.FinishTime,
-            NextRetryOn = _taskState.State.NextRetryOn
+            NextRetryOn = _taskState.State.NextRetryOn,
+            ConsumerResults = _taskState.State.ConsumerResults != null 
+                ? System.Text.Json.JsonSerializer.Serialize(_taskState.State.ConsumerResults) 
+                : null
         };
     }
 
@@ -254,6 +311,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             existing.StartOn = entity.StartOn;
             existing.FinishOn = entity.FinishOn;
             existing.NextRetryOn = entity.NextRetryOn;
+            existing.ConsumerResults = entity.ConsumerResults;
 
             await repository.UpdateEntityAsync(existing);
         }

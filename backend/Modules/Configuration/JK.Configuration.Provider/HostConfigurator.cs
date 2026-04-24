@@ -47,11 +47,9 @@ public static class HostConfigurator
             logging.AddConsole();
         });
 
-        services.AddSingleton<IOptionsMonitor<GrpcClientConfiguration>>(
-            new GrpcClientConfigurationOptionsMonitor(grpcClientConfiguration));
+        services.AddSingleton<IOptionsMonitor<GrpcClientConfiguration>>(new GrpcClientConfigurationOptionsMonitor(grpcClientConfiguration));
 
-        services.AddSingleton<ResolverFactory>(
-            new DnsResolverFactory(TimeSpan.FromSeconds(5)));
+        services.AddSingleton<ResolverFactory>(new DnsResolverFactory(TimeSpan.FromSeconds(5)));
 
         services.AddSingleton<IEnumerable<Interceptor>>(_ => Array.Empty<Interceptor>());
 

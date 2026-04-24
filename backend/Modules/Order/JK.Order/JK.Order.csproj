@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Persistence\JK.Platform.Core.Persistence.csproj" />
     <ProjectReference Include="..\..\..\Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj" />
+    <ProjectReference Include="..\..\Messaging\JK.Messaging.Client.Grpc\JK.Messaging.Client.Grpc.csproj" />
     <ProjectReference Include="..\JK.Order.Contracts\JK.Order.Contracts.csproj" />
     <ProjectReference Include="..\JK.Order.Proto\JK.Order.Proto.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />

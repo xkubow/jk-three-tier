@@ -36,4 +36,7 @@ public sealed class ApiMessageTaskState
 
     [Id(10)]
     public DateTime? NextRetryOn { get; set; }
+
+    [Id(11)]
+    public Dictionary<string, string> ConsumerResults { get; set; }
 }

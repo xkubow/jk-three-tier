@@ -5,6 +5,7 @@ option csharp_namespace = "JK.Order.Proto";
 package jk.order;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 service OrderGrpc {
   rpc GetById (GetOrderByIdRequest) returns (OrderMessage) {
@@ -36,6 +37,12 @@ service OrderGrpc {
   rpc Delete (DeleteOrderRequest) returns (DeleteOrderResponse) {
     option (google.api.http) = {
       delete: "/api/grpc/v1/orders/{id}"
+    };
+  }
+
+  rpc Test (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/grpc/v1/orders/test"
     };
   }
 }

@@ -52,6 +52,7 @@ public class ConfigurationService : IConfigurationService
             UpdatedAt = DateTime.UtcNow,
             CreatedBy = request.CreatedBy,
             UpdatedBy = request.CreatedBy,
+            IsList = request.IsList,
         };
         await _unitOfWork.GetRepository<IConfigurationRepository>().AddAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -68,6 +69,7 @@ public class ConfigurationService : IConfigurationService
         model.Value = request.Value;
         model.UpdatedAt = DateTime.UtcNow;
         model.UpdatedBy = request.UpdatedBy;
+        model.IsList = request.IsList;
         await _unitOfWork.GetRepository<IConfigurationRepository>().UpdateAsync(model, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

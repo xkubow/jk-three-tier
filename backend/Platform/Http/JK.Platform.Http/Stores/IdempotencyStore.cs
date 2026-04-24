@@ -1,8 +1,11 @@
 using System.Collections.Concurrent;
 using System.Net.Mime;
+using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Platform.Http.Stores;
 
+[Injectable(ServiceLifetime.Singleton)]
 public class IdempotencyStore : IIdempotencyStore
 {
     private readonly ConcurrentDictionary<string, IdempotencyEntry> _idempotencyCache = new();

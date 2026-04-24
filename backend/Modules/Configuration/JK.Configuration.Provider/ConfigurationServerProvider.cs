@@ -129,53 +129,7 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
         {
             var configurations = await LoadConfigurationAsync(cancellationToken);
 
-            var newData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Platform:ServiceCode"] = _grpcConfigurationRequest.ServiceCode
-            };
-
-            if (configurations?.Any() == true)
-            {
-                foreach (var configuration in configurations)
-                {
-                    if (string.IsNullOrWhiteSpace(configuration.Key))
-                    {
-                        continue;
-                    }
-
-                    if (newData.TryGetValue(configuration.Key, out var existingValue) &&
-                        existingValue != configuration.Value)
-                    {
-                        _logger.LogWarning(
-                            "ConfigurationServerProvider duplicate key detected. Key={Key}, OldValue={OldValue}, NewValue={NewValue}",
-                            configuration.Key,
-                            existingValue,
-                            configuration.Value);
-                    }
-
-                    newData[configuration.Key] = configuration.Value;
-
-                    if (!firstLoad &&
-                        Data.TryGetValue(configuration.Key, out var currentValue) &&
-                        currentValue != configuration.Value)
-                    {
-                        _logger.LogWarning(
-                            "Configuration value changed. Key={Key}, OldValue={OldValue}, NewValue={NewValue}",
-                            configuration.Key,
-                            currentValue,
-                            configuration.Value);
-                    }
-
-                    if (string.Equals(configuration.Key, "ConfigurationProvider:ReloadPeriodInMilliseconds", StringComparison.OrdinalIgnoreCase))
-                    {
-                        _ = int.TryParse(configuration.Value, out _reloadPeriodInMilliseconds);
-                    }
-                    else if (string.Equals(configuration.Key, "ConfigurationProvider:InitialRetryMilliseconds", StringComparison.OrdinalIgnoreCase))
-                    {
-                        _ = int.TryParse(configuration.Value, out _initialRetryMilliseconds);
-                    }
-                }
-            }
+            var newData = BuildConfigurationData(configurations, firstLoad);
 
             Data = newData;
 
@@ -198,6 +152,107 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
                 ex,
                 "ConfigurationServerProvider failed to load configuration. ServiceCode={ServiceCode}",
                 _grpcConfigurationRequest.ServiceCode);
+        }
+    }
+
+    private Dictionary<string, string?> BuildConfigurationData(IReadOnlyCollection<GrpcConfiguration> configurations, bool firstLoad)
+    {
+        var newData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Platform:ServiceCode"] = _grpcConfigurationRequest.ServiceCode
+        };
+
+        if (configurations?.Any() == true)
+        {
+            var groupedConfigurations = configurations.GroupBy(c => c.Key);
+
+            foreach (var group in groupedConfigurations)
+            {
+                if (string.IsNullOrWhiteSpace(group.Key))
+                {
+                    continue;
+                }
+
+                var configList = group.ToList();
+                var isListConfiguration = configList.Any(c => c.IsList);
+
+                if (isListConfiguration)
+                {
+                    ProcessListConfiguration(group.Key, configList, newData, firstLoad);
+                }
+                else
+                {
+                    ProcessSingleConfiguration(group.Key, configList, newData, firstLoad);
+                }
+            }
+        }
+
+        return newData;
+    }
+
+    private void ProcessListConfiguration(string key, List<GrpcConfiguration> configList, Dictionary<string, string?> newData, bool firstLoad)
+    {
+        _logger.LogDebug(
+            "Processing list configuration. Key={Key}, Count={Count}",
+            key,
+            configList.Count);
+
+        for (int i = 0; i < configList.Count; i++)
+        {
+            var configuration = configList[i];
+            var indexedKey = $"{key}:{i}";
+            newData[indexedKey] = configuration.Value;
+
+            if (!firstLoad &&
+                Data.TryGetValue(indexedKey, out var currentValue) &&
+                currentValue != configuration.Value)
+            {
+                _logger.LogWarning(
+                    "Configuration list value changed. Key={Key}, OldValue={OldValue}, NewValue={NewValue}",
+                    indexedKey,
+                    currentValue,
+                    configuration.Value);
+            }
+        }
+    }
+
+    private void ProcessSingleConfiguration(string key, List<GrpcConfiguration> configList, Dictionary<string, string?> newData, bool firstLoad)
+    {
+        var configuration = configList.First();
+
+        if (configList.Count > 1)
+        {
+            _logger.LogWarning(
+                "ConfigurationServerProvider duplicate key detected for non-list configuration. Key={Key}, Count={Count}",
+                key,
+                configList.Count);
+        }
+
+        newData[configuration.Key] = configuration.Value;
+
+        if (!firstLoad &&
+            Data.TryGetValue(configuration.Key, out var currentValue) &&
+            currentValue != configuration.Value)
+        {
+            _logger.LogWarning(
+                "Configuration value changed. Key={Key}, OldValue={OldValue}, NewValue={NewValue}",
+                configuration.Key,
+                currentValue,
+                configuration.Value);
+        }
+
+        UpdateProviderSettings(configuration.Key, configuration.Value);
+    }
+
+    private void UpdateProviderSettings(string key, string? value)
+    {
+        if (string.Equals(key, "ConfigurationProvider:ReloadPeriodInMilliseconds", StringComparison.OrdinalIgnoreCase))
+        {
+            _ = int.TryParse(value, out _reloadPeriodInMilliseconds);
+        }
+        else if (string.Equals(key, "ConfigurationProvider:InitialRetryMilliseconds", StringComparison.OrdinalIgnoreCase))
+        {
+            _ = int.TryParse(value, out _initialRetryMilliseconds);
         }
     }
 

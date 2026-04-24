@@ -45,6 +45,7 @@ public class MessagingModuleInstaller : IModuleInstaller
     public void MapGrpcServices(WebApplication app)
     {
         app.MapGrpcService<MessagingGrpcService>();
+        app.MapGrpcService<ApiMessageTaskGrpcService>();
     }
 
     public void MapHealthChecks(WebApplication app)

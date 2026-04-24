@@ -1,3 +1,4 @@
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using JK.Order.Contracts;
 using JK.Order.Proto;
@@ -101,6 +102,13 @@ public class OrderGrpcService : OrderGrpc.OrderGrpcBase
             CreatedAt = dto.CreatedAt.ToString("O"),
             UpdatedAt = dto.UpdatedAt.ToString("O")
         };
+    }
+
+    public override Task<Empty> Test(Empty request, ServerCallContext context)
+    {
+        _service.Test();
+
+        return Task.FromResult(new Empty());
     }
 }
 

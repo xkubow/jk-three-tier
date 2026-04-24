@@ -10,9 +10,13 @@
   <ItemGroup>
     <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
     <PackageReference Include="Google.Protobuf" Version="3.31.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Grpc\JK.Platform.Grpc.Client\JK.Platform.Grpc.Client.csproj" />
     <ProjectReference Include="..\JK.Messaging.Contracts\JK.Messaging.Contracts.csproj" />
     <ProjectReference Include="..\JK.Messaging.Proto\JK.Messaging.Proto.csproj" />
   </ItemGroup>
