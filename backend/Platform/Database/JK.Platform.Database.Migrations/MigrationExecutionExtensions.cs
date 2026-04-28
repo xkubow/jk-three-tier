@@ -2,14 +2,14 @@ using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace JK.Backend.Migrations;
+namespace JK.Platform.Database.Migrations;
 
 public static class MigrationExecutionExtensions
 {
     public static void RunBackendMigrations(this IServiceProvider serviceProvider)
     {
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("JK.Backend.Migrations");
+            .CreateLogger("JK.Platform.Database.Migrations");
 
         logger.LogInformation("Applying database migrations.");
 

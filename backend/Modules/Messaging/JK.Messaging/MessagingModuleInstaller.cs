@@ -1,5 +1,5 @@
 using FluentValidation;
-using JK.Backend.Migrations;
+using JK.Platform.Database.Migrations;
 using JK.Messaging.Configurations;
 using JK.Messaging.Database;
 using JK.Messaging.Grpc;

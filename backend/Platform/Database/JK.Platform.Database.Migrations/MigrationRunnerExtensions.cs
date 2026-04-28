@@ -3,7 +3,7 @@ using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace JK.Backend.Migrations;
+namespace JK.Platform.Database.Migrations;
 
 public static class MigrationRunnerExtensions
 {

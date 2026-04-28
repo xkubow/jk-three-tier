@@ -1,4 +1,4 @@
-using JK.Backend.Migrations;
+using JK.Platform.Database.Migrations;
 using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;

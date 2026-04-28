@@ -31,7 +31,7 @@
     <ProjectReference Include="..\JK.Configuration.Proto\JK.Configuration.Proto.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
     <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
-    <ProjectReference Include="..\..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Database\JK.Platform.Database.Migrations\JK.Platform.Database.Migrations.csproj" />
     <ProjectReference Include="..\JK.Configuration.Database\JK.Configuration.Database.csproj" />
   </ItemGroup>
 

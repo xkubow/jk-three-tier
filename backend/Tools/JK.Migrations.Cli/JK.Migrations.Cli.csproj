@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JK.Backend.Migrations\JK.Backend.Migrations.csproj" />
+    <ProjectReference Include="..\..\Platform\Database\JK.Platform.Database.Migrations\JK.Platform.Database.Migrations.csproj" />
   </ItemGroup>
 
   <ItemGroup>

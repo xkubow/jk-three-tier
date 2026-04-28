@@ -1,7 +1,7 @@
 ﻿using System.CommandLine;
 using System.Runtime.Loader;
 using AdysTech.CredentialManager;
-using JK.Backend.Migrations;
+using JK.Platform.Database.Migrations;
 using JK.Migrations.Cli.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

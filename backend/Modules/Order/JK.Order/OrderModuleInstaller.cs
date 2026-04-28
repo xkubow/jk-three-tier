@@ -1,5 +1,5 @@
 using FluentValidation;
-using JK.Backend.Migrations;
+using JK.Platform.Database.Migrations;
 using JK.Order.Configurations;
 using JK.Order.Database;
 using JK.Order.Grpc;

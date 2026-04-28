@@ -1,5 +1,5 @@
 using FluentValidation;
-using JK.Backend.Migrations;
+using JK.Platform.Database.Migrations;
 using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
