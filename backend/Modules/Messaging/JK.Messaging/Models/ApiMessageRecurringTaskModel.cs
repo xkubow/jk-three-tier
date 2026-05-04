@@ -1,6 +1,20 @@
+using JK.Platform.Persistence.EfCore;
+
 namespace JK.Messaging.Models;
 
-public class ApiMessageRecurringTaskModel
+public class ApiMessageRecurringTaskModel : ModelBase<string>
 {
-    
+    public string TaskName { get; set; } = default!;
+
+    public string CronExpression { get; set; } = default!;
+
+    public bool IsEnabled { get; set; } = true;
+
+    public DateTime? LastRunAtUtc { get; set; }
+
+    public DateTime? NextRunAtUtc { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAtUtc { get; set; }
 }

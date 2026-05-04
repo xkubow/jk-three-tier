@@ -1,9 +1,11 @@
 using FluentValidation;
+using JK.Configuration.Configurations;
 using JK.Platform.Database.Migrations;
 using JK.Configuration.Database;
 using JK.Configuration.Endpoints.GrpcPorts;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -26,6 +28,7 @@ public class ConfigurationModuleInstaller : IModuleInstaller
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
+        services.AddPlatformSerilogConfigurator<ConfigurationSerilogConfigurator>();
         services.AddDbContext<ConfigurationDbContext>(options => { options.UseNpgsql(connectionString); });
 
         services.AddBackendMigrations(connectionString, assembly, databaseAssembly);

@@ -10,6 +10,5 @@ public class MessagingDbContext : DbContext
     {
     }
 
-    public DbSet<MessagingEntity> Messaging { get; set; } = null!;
     public DbSet<ApiMessageTaskEntity> ApiMessageTasks { get; set; } = null!;
 }

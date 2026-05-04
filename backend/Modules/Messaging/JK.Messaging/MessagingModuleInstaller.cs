@@ -3,8 +3,10 @@ using JK.Platform.Database.Migrations;
 using JK.Messaging.Configurations;
 using JK.Messaging.Database;
 using JK.Messaging.Grpc;
+using JK.Messaging.Services;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -26,6 +28,7 @@ public class MessagingModuleInstaller : IModuleInstaller
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
+        services.AddPlatformSerilogConfigurator<MessagingSerilogConfigurator>();
         services.AddDbContext<MessagingDbContext>(options => { options.UseNpgsql(connectionString); });
 
         services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
@@ -35,6 +38,8 @@ public class MessagingModuleInstaller : IModuleInstaller
 
         services.RegisterInjectableServices(assembly);
         services.AddUnitOfWork();
+
+        services.AddHostedService<ApiMessageRecurringTaskStartupService>();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)
@@ -44,7 +49,6 @@ public class MessagingModuleInstaller : IModuleInstaller
 
     public void MapGrpcServices(WebApplication app)
     {
-        app.MapGrpcService<MessagingGrpcService>();
         app.MapGrpcService<ApiMessageTaskGrpcService>();
     }
 

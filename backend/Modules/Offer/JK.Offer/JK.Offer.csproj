@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Persistence\JK.Platform.Core.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Serilog\JK.Platform.Core.Serilog.csproj" />
     <ProjectReference Include="..\..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
     <ProjectReference Include="..\..\..\Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj" />
     <ProjectReference Include="..\JK.Offer.Contracts\JK.Offer.Contracts.csproj" />

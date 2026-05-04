@@ -6,6 +6,7 @@ using JK.Order.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.AspNetCore.Discovery;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -27,6 +28,7 @@ public class OrderModuleInstaller : IModuleInstaller
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
+        services.AddPlatformSerilogConfigurator<OrderSerilogConfigurator>();
         services.AddDbContext<OrderDbContext>(options => { options.UseNpgsql(connectionString); });
 
         services.AddBackendMigrations(connectionString, localAssembly, databaseAssembly);

@@ -6,7 +6,7 @@ using Serilog.Exceptions.Core;
 
 namespace JK.Configuration.Configurations;
 
-public sealed class SerilogConfigurator : IPlatformSerilogConfigurator
+public sealed class ConfigurationSerilogConfigurator : IPlatformSerilogConfigurator
 {
     public void Initialize(IConfiguration configuration)
     {
@@ -15,8 +15,7 @@ public sealed class SerilogConfigurator : IPlatformSerilogConfigurator
     public void Configure(LoggerConfiguration loggerConfiguration)
     {
         loggerConfiguration
-            .MinimumLevel.Override("JK.Messaging", LogEventLevel.Debug)
-            .MinimumLevel.Override("Orleans", LogEventLevel.Information);
+            .MinimumLevel.Override("JK.Configuration", LogEventLevel.Debug);
     }
 
     public void Configure(DestructuringOptionsBuilder destructuringOptionsBuilder)

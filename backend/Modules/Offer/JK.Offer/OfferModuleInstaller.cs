@@ -5,6 +5,7 @@ using JK.Offer.Database;
 using JK.Offer.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Http.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +28,7 @@ public class OfferModuleInstaller : IModuleInstaller
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("DefaultConnection configuration is missing or empty.");
 
+        services.AddPlatformSerilogConfigurator<OfferSerilogConfigurator>();
         services.AddDbContext<OfferDbContext>(options => { options.UseNpgsql(connectionString); });
 
         services.AddBackendMigrations(connectionString, assembly, databaseAssembly);

@@ -4,9 +4,9 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions.Core;
 
-namespace JK.Configuration.Configurations;
+namespace JK.Order.Configurations;
 
-public sealed class ConfigurationSerilogConfigurator : IPlatformSerilogConfigurator
+public sealed class OrderSerilogConfigurator : IPlatformSerilogConfigurator
 {
     public void Initialize(IConfiguration configuration)
     {
