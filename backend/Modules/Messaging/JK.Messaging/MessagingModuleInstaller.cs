@@ -3,7 +3,6 @@ using JK.Platform.Database.Migrations;
 using JK.Messaging.Configurations;
 using JK.Messaging.Database;
 using JK.Messaging.Grpc;
-using JK.Messaging.Services;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
 using JK.Platform.Core.Serilog.Extensions;
@@ -39,7 +38,6 @@ public class MessagingModuleInstaller : IModuleInstaller
         services.RegisterInjectableServices(assembly);
         services.AddUnitOfWork();
 
-        services.AddHostedService<ApiMessageRecurringTaskStartupService>();
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

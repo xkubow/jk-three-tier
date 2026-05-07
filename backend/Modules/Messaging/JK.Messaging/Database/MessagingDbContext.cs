@@ -12,4 +12,15 @@ public class MessagingDbContext : DbContext
 
     public DbSet<ApiMessageTaskEntity> ApiMessageTasks { get; set; } = null!;
     public DbSet<ApiMessageRecurringTaskEntity> ApiMessageRecurringTasks { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApiMessageTaskEntity>(entity =>
+        {
+            entity.Property(e => e.State)
+                .HasConversion<string>();
+        });
+
+        base.OnModelCreating(modelBuilder);
+    }
 }

@@ -185,7 +185,7 @@ public class ApiMessageRecurringTaskSchedulerGrain :
 
     private async Task CreateApiMessageTasksAsync(ApiMessageRecurringTaskModel recurringTask)
     {
-        var urls = _configuration.GetSection($"Messaging:Tasks:{recurringTask.TaskName}:Urls").Get<List<string>>();
+        var urls = _configuration.GetSection($"Messaging:RecurrentTasks:{recurringTask.TaskName}:Urls").Get<List<string>>();
         if (urls == null || urls.Count == 0)
         {
             return;
