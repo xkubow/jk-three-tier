@@ -6,7 +6,6 @@ public class ApiMessageTaskDto
 {
     public string TaskId { get; set; } = string.Empty;
     public string TaskName { get; set; } = string.Empty;
-    public string TargetUrl { get; set; } = string.Empty;
     public ApiMessageStateEnum TaskState { get; set; }
     public int Attempts { get; set; }
     public int MaxAttempts { get; set; }

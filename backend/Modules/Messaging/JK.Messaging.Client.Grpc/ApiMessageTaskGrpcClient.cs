@@ -15,7 +15,7 @@ namespace JK.Messaging.Client.Grpc;
 [Injectable(lifetime: ServiceLifetime.Scoped)]
 public class ApiMessageTaskGrpcClient : ClientBaseDecorator<GrpcApiMessageTask.GrpcApiMessageTaskClient, ApiMessageTaskGrpcClient>, IApiMessageTaskGrpcClient
 {
-    protected override string ServerUrlConfigurationKey { get; } = "JK.Messaging.ApiMessageTaskGrpc.Server.Url";
+    protected override string ServerUrlConfigurationKey { get; } = "JK:Messaging:ApiMessageTaskGrpc:Server:Url";
 
     public ApiMessageTaskGrpcClient(IGrpcClientFactory<GrpcApiMessageTask.GrpcApiMessageTaskClient> channel, IConfiguration configuration, ILogger<ApiMessageTaskGrpcClient> logger) : base(channel, configuration, logger)
     {
@@ -27,7 +27,6 @@ public class ApiMessageTaskGrpcClient : ClientBaseDecorator<GrpcApiMessageTask.G
         {
             TaskId = request.TaskId,
             TaskName = request.TaskName,
-            TargetUrl = request.TargetUrl,
             MaxAttempts = request.MaxAttempts,
             Delay = request.Delay.HasValue ? Duration.FromTimeSpan(request.Delay.Value) : null,
             RetryDelay = request.RetryDelay.HasValue ? Duration.FromTimeSpan(request.RetryDelay.Value) : null
@@ -58,7 +57,6 @@ public class ApiMessageTaskGrpcClient : ClientBaseDecorator<GrpcApiMessageTask.G
         {
             TaskId = response.TaskId,
             TaskName = response.TaskName,
-            TargetUrl = response.TargetUrl,
             TaskState = (ApiMessageStateEnum)response.TaskState,
             Attempts = response.Attempts,
             MaxAttempts = response.MaxAttempts,

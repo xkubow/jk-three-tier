@@ -34,7 +34,6 @@ public class ApiMessageTasksController : ControllerBase
         {
             Id = request.TaskId,
             TaskName = request.TaskName,
-            TargetUrl = request.TargetUrl,
             MaxAttempts = request.MaxAttempts,
             Delay = request.Delay,
             RetryDelay = request.RetryDelay

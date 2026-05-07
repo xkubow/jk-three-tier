@@ -12,8 +12,5 @@ public class CreateApiMessageTaskRequestValidator : AbstractValidator<CreateApiM
 
         RuleFor(x => x.TaskName)
             .NotEmpty().WithMessage("TaskName is required.");
-
-        RuleFor(x => x.TargetUrl)
-            .NotEmpty().WithMessage("TargetUrl is required.");
     }
 }

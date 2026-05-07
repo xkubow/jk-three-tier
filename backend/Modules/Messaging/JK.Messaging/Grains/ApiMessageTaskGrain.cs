@@ -52,7 +52,6 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
 
         _taskState.State.TaskId = taskModel.Id;
         _taskState.State.TaskName = taskModel.TaskName;
-        _taskState.State.TargetUrl = taskModel.TargetUrl;
         _taskState.State.TaskState = ApiMessageStateEnum.Created;
         _taskState.State.Attempts = 0;
         _taskState.State.MaxAttempts = taskModel.MaxAttempts <= 0 ? 5 : taskModel.MaxAttempts;
@@ -169,24 +168,25 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
 
     private List<string> GetConsumerUrlsFromConfiguration(string taskName)
     {
-        var configKey = $"{taskName}.Task.Consumers";
-        var configSection = _configuration.GetSection(configKey);
+        var urls = _configuration.GetSection($"Messaging:Tasks:{taskName}:Urls").Get<List<string>>();
 
-        if (!configSection.Exists())
+        if (urls == null || urls.Count == 0)
         {
-            _logger.LogWarning("No consumer URLs found for configuration key: {ConfigKey}", configKey);
+            urls = _configuration.GetSection($"Messaging:RecurrentTasks:{taskName}:Urls").Get<List<string>>();
+        }
+
+        if (urls == null || urls.Count == 0)
+        {
+            urls = _configuration.GetSection($"{taskName}:Task:Consumers").Get<List<string>>();
+        }
+
+        if (urls == null || urls.Count == 0)
+        {
+            _logger.LogWarning("No consumer URLs found for task: {TaskName}", taskName);
             return new List<string>();
         }
 
-        var consumerUrls = configSection.Get<List<string>>();
-
-        if (consumerUrls == null || consumerUrls.Count == 0)
-        {
-            _logger.LogWarning("No consumer URLs found for configuration key: {ConfigKey}", configKey);
-            return new List<string>();
-        }
-
-        return consumerUrls
+        return urls
             .Where(url => !string.IsNullOrWhiteSpace(url))
             .ToList();
     }
@@ -237,7 +237,6 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         entity.Attempts = _taskState.State.Attempts;
         entity.MaxAttempts = _taskState.State.MaxAttempts;
         entity.LastError = _taskState.State.LastError;
-        entity.TargetUrl = _taskState.State.TargetUrl;
         entity.TaskName = _taskState.State.TaskName;
         entity.CreatedOn = _taskState.State.CreatedOn;
         entity.StartOn = _taskState.State.StartTime;
@@ -269,7 +268,6 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         {
             Id = _taskState.State.TaskId,
             TaskName = _taskState.State.TaskName,
-            TargetUrl = _taskState.State.TargetUrl,
             State = _taskState.State.TaskState,
             Attempts = _taskState.State.Attempts,
             MaxAttempts = _taskState.State.MaxAttempts,
@@ -302,7 +300,6 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         else
         {
             existing.TaskName = entity.TaskName;
-            existing.TargetUrl = entity.TargetUrl;
             existing.State = entity.State;
             existing.Attempts = entity.Attempts;
             existing.MaxAttempts = entity.MaxAttempts;

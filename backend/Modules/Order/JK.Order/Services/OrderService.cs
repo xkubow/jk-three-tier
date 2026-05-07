@@ -92,7 +92,7 @@ public class OrderService : IOrderService
     public async Task Test()
     {
         _logger.LogInformation("Starting test from Order Service");
-        await _apiMessageTaskGrpcClient.CreateAsync(new CreateApiMessageTaskRequest() { TaskId = Guid.NewGuid().ToString() + "_order_test", TaskName = "Test", TargetUrl = "grpcs://localhost:7005/jk.offer.OfferGrpc/Test", MaxAttempts = 3 });
+        await _apiMessageTaskGrpcClient.CreateAsync(new CreateApiMessageTaskRequest() { TaskId = Guid.NewGuid().ToString() + "_order_test", TaskName = "Test", MaxAttempts = 3 });
         _logger.LogInformation("Test from Order Service completed");
     }
 }

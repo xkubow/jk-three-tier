@@ -11,32 +11,29 @@ public sealed class ApiMessageTaskState
     public string TaskName { get; set; } = string.Empty;
 
     [Id(2)]
-    public string TargetUrl { get; set; } = string.Empty;
-
-    [Id(3)]
     public ApiMessageStateEnum TaskState { get; set; } = ApiMessageStateEnum.Waiting;
 
-    [Id(4)]
+    [Id(3)]
     public int Attempts { get; set; }
 
-    [Id(5)]
+    [Id(4)]
     public int MaxAttempts { get; set; } = 5;
 
-    [Id(6)]
+    [Id(5)]
     public string? LastError { get; set; }
 
-    [Id(7)]
+    [Id(6)]
     public DateTime CreatedOn { get; set; }
 
-    [Id(8)]
+    [Id(7)]
     public DateTime? StartTime { get; set; }
 
-    [Id(9)]
+    [Id(8)]
     public DateTime? FinishTime { get; set; }
 
-    [Id(10)]
+    [Id(9)]
     public DateTime? NextRetryOn { get; set; }
 
-    [Id(11)]
+    [Id(10)]
     public Dictionary<string, string> ConsumerResults { get; set; }
 }

@@ -33,10 +33,9 @@ service GrpcApiMessageTask {
 message CreateApiMessageTaskRequest {
   string task_id = 1;
   string task_name = 2;
-  string target_url = 3;
-  int32 max_attempts = 4;
-  google.protobuf.Duration delay = 5;
-  google.protobuf.Duration retry_delay = 6;
+  int32 max_attempts = 3;
+  google.protobuf.Duration delay = 4;
+  google.protobuf.Duration retry_delay = 5;
 }
 
 message GetApiMessageTaskStateRequest {
@@ -50,15 +49,14 @@ message CancelApiMessageTaskRequest {
 message ApiMessageTaskStateResponse {
   string task_id = 1;
   string task_name = 2;
-  string target_url = 3;
-  ApiMessageState task_state = 4;
-  int32 attempts = 5;
-  int32 max_attempts = 6;
-  string last_error = 7;
-  google.protobuf.Timestamp created_on = 8;
-  google.protobuf.Timestamp start_time = 9;
-  google.protobuf.Timestamp finish_time = 10;
-  google.protobuf.Timestamp next_retry_on = 11;
+  ApiMessageState task_state = 3;
+  int32 attempts = 4;
+  int32 max_attempts = 5;
+  string last_error = 6;
+  google.protobuf.Timestamp created_on = 7;
+  google.protobuf.Timestamp start_time = 8;
+  google.protobuf.Timestamp finish_time = 9;
+  google.protobuf.Timestamp next_retry_on = 10;
 }
 
 enum ApiMessageState {

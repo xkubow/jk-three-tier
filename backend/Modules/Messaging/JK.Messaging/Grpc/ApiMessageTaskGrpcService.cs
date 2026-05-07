@@ -26,7 +26,6 @@ public class ApiMessageTaskGrpcService : GrpcApiMessageTask.GrpcApiMessageTaskBa
         {
             Id = request.TaskId,
             TaskName = request.TaskName,
-            TargetUrl = request.TargetUrl,
             MaxAttempts = request.MaxAttempts,
             Delay = request.Delay?.ToTimeSpan(),
             RetryDelay = request.RetryDelay?.ToTimeSpan()
@@ -60,7 +59,6 @@ public class ApiMessageTaskGrpcService : GrpcApiMessageTask.GrpcApiMessageTaskBa
         {
             TaskId = state.TaskId,
             TaskName = state.TaskName,
-            TargetUrl = state.TargetUrl,
             TaskState = (ApiMessageState)state.TaskState,
             Attempts = state.Attempts,
             MaxAttempts = state.MaxAttempts,

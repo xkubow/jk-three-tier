@@ -17,10 +17,6 @@ public class ApiMessageTaskEntity : EntityBase<string>
     public string TaskName { get; set; } = null!;
 
     [Required]
-    [MaxLength(2000)]
-    public string TargetUrl { get; set; } = null!;
-
-    [Required]
     [MaxLength(50)]
     public ApiMessageStateEnum State { get; set; } = ApiMessageStateEnum.Waiting;
 
