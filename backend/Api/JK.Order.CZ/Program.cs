@@ -1,6 +1,7 @@
 using JK.Platform.Database.Migrations;
 using JK.Configuration.Provider;
 using JK.Platform.Core.AspNetCore.Discovery;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
 using JK.Platform.Http.Extensions;
@@ -27,6 +28,8 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.AddConfigurationServerProvider();
+builder.Services.AddPlatformSerilog();
+builder.Host.UsePlatformSerilog();
 
 var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
@@ -48,6 +51,8 @@ var app = builder.Build();
 
 if (app.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
     app.Services.RunBackendMigrations();
+
+app.UsePlatformSerilogRequestLogging();
 
 app.UseRouting();
 app.UsePlatformCors();
