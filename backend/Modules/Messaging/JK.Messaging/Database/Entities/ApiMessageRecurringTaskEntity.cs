@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using JK.Platform.Persistence.EfCore;
 
 namespace JK.Messaging.Database.Entities;
 
+[Table("ApiMessageRecurringTask")]
 public class ApiMessageRecurringTaskEntity : EntityBase<string>
 {
     [Required]

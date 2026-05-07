@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Configuration;
+using JK.Messaging.Contracts;
+using JK.Messaging.Contracts.Enums;
 using Cronos;
 using JK.Messaging.Database;
 using JK.Messaging.Database.Entities;
@@ -7,6 +10,9 @@ using JK.Messaging.Models;
 using JK.Platform.Persistence.EfCore;
 using Microsoft.Extensions.Logging;
 using Orleans.Runtime;
+
+
+namespace JK.Messaging.Grains;
 
 public class ApiMessageRecurringTaskSchedulerGrain :
     Grain,
@@ -21,13 +27,16 @@ public class ApiMessageRecurringTaskSchedulerGrain :
 
     private readonly ILogger<ApiMessageRecurringTaskSchedulerGrain> _logger;
     private readonly IUnitOfWork<MessagingDbContext> _unitOfWork;
+    private readonly IConfiguration _configuration;
 
     public ApiMessageRecurringTaskSchedulerGrain(
         IUnitOfWorkFactory<MessagingDbContext> unitOfWorkFactory,
-        ILogger<ApiMessageRecurringTaskSchedulerGrain> logger)
+        ILogger<ApiMessageRecurringTaskSchedulerGrain> logger,
+        IConfiguration configuration)
     {
         _unitOfWork = unitOfWorkFactory.Create();
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task EnsureSyncReminderAsync()
@@ -176,29 +185,44 @@ public class ApiMessageRecurringTaskSchedulerGrain :
 
     private async Task CreateApiMessageTasksAsync(ApiMessageRecurringTaskModel recurringTask)
     {
-        // Here you load URLs from your Configuration table by recurringTask.TaskName.
-        // For example:
-        //
-        // var urls = await _configurationService.GetValuesAsync(recurringTask.TaskName);
-        //
-        // foreach (var url in urls)
-        // {
-        //     var apiMessageTask = new ApiMessageTaskEntity
-        //     {
-        //         Id = Guid.NewGuid(),
-        //         TaskName = recurringTask.TaskName,
-        //         Url = url,
-        //         Status = ApiMessageTaskStatus.Created,
-        //         CreatedAtUtc = DateTime.UtcNow
-        //     };
-        //
-        //     apiMessageTaskRepository.Add(apiMessageTask);
-        //
-        //     var grain = GrainFactory.GetGrain<IApiMessageTaskGrain>(apiMessageTask.Id.ToString());
-        //     await grain.ProcessAsync();
-        // }
+        var urls = _configuration.GetSection($"Messaging:Tasks:{recurringTask.TaskName}:Urls").Get<List<string>>();
+        if (urls == null || urls.Count == 0)
+        {
+            return;
+        }
 
-        await Task.CompletedTask;
+        var repository = _unitOfWork.GetRepository<IApiMessageTaskRepository>();
+        var entities = new List<ApiMessageTaskEntity>();
+
+        foreach (var url in urls)
+        {
+            var apiMessageTask = new ApiMessageTaskEntity
+            {
+                Id = Guid.NewGuid().ToString(),
+                TaskName = recurringTask.TaskName,
+                TargetUrl = url,
+                State = ApiMessageStateEnum.Created,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            await repository.AddAsync(apiMessageTask);
+            entities.Add(apiMessageTask);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        var registrationTasks = entities.Select(entity =>
+        {
+            var grain = GrainFactory.GetGrain<IApiMessageTaskGrain>(entity.Id);
+            return grain.Register(new RegisterApiMessageTaskCommand
+            {
+                Id = entity.Id,
+                TaskName = entity.TaskName,
+                TargetUrl = entity.TargetUrl
+            });
+        });
+
+        await Task.WhenAll(registrationTasks);
     }
 
     private static string GetTaskReminderName(string taskName)

@@ -31,6 +31,18 @@ spec:
               value: "http://configuration:8081"
             - name: GrpcClientConfiguration__UseSecureSslChannel
               value: "false"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service

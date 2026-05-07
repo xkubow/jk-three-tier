@@ -1,5 +1,3 @@
-using JK.Messaging.Database.Entities;
-using JK.Messaging.Models;
 using JK.Platform.Persistence.EfCore;
 using ApiMessageRecurringTaskModel = JK.Messaging.Models.ApiMessageRecurringTaskModel;
 

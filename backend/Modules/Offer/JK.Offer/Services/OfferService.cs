@@ -7,6 +7,7 @@ using JK.Platform.Persistence.EfCore;
 using JK.Offer.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace JK.Offer.Services;
@@ -17,12 +18,14 @@ public class OfferService : IOfferService
     private readonly IUnitOfWork<OfferDbContext> _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IOptionsSnapshot<OfferConfiguration> _configuration;
+    private ILogger<OfferService> _logger;
 
-    public OfferService(IUnitOfWorkFactory<OfferDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OfferConfiguration> configuration)
+    public OfferService(IUnitOfWorkFactory<OfferDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OfferConfiguration> configuration, ILogger<OfferService> logger)
     {
         _unitOfWork = unitOfWorkFactory.Create();
         _mapper = mapper;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<OfferDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -86,6 +89,8 @@ public class OfferService : IOfferService
 
     public void Test()
     {
+        _logger.LogInformation("Starting test from Offer Service");
         Console.WriteLine("Test from Offer Service");
+        _logger.LogInformation("Test from Offer Service completed");
     }
 }

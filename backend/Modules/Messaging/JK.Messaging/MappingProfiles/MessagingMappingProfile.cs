@@ -9,5 +9,6 @@ public class MessagingMappingProfile : Profile
     public MessagingMappingProfile()
     {
         CreateMap<ApiMessageTaskEntity, ApiMessageTaskModel>().ReverseMap();
+        CreateMap<ApiMessageRecurringTaskEntity, ApiMessageRecurringTaskModel>().ReverseMap();
     }
 }

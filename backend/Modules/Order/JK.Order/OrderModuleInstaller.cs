@@ -45,6 +45,8 @@ public class OrderModuleInstaller : IModuleInstaller
         }
         services.RegisterInjectableServices(localAssembly);
         services.AddUnitOfWork();
+
+        // services.AddHealthChecks().AddNpgSql(connectionString);
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

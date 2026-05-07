@@ -29,16 +29,20 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: jk-db-secret
-                  key: DB_CONNECTION_STRING
+                  key: OFFER_DB_CONNECTION_STRING
+            - name: ConfigurationProvider__ServerUrl
+              value: "http://configuration:8081"
+            - name: GrpcClientConfiguration__UseSecureSslChannel
+              value: "false"
           readinessProbe:
             httpGet:
-              path: /api/offer/health
+              path: /health/ready
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /api/offer/health
+              path: /health/live
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 20

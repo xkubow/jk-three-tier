@@ -107,7 +107,6 @@ public class OrderGrpcService : OrderGrpc.OrderGrpcBase
     public override Task<Empty> Test(Empty request, ServerCallContext context)
     {
         _service.Test();
-
         return Task.FromResult(new Empty());
     }
 }

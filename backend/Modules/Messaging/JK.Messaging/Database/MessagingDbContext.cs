@@ -11,4 +11,5 @@ public class MessagingDbContext : DbContext
     }
 
     public DbSet<ApiMessageTaskEntity> ApiMessageTasks { get; set; } = null!;
+    public DbSet<ApiMessageRecurringTaskEntity> ApiMessageRecurringTasks { get; set; } = null!;
 }

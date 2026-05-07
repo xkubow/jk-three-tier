@@ -1,13 +1,16 @@
 using AutoMapper;
 using JK.Messaging.Database.Entities;
 using JK.Messaging.Models;
+using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JK.Messaging.Database.Repositories;
 
+[Injectable(ServiceLifetime.Scoped)]
 public class ApiMessageRecurringTaskRepository : BaseRepository<ApiMessageRecurringTaskModel, ApiMessageRecurringTaskEntity, string>, IApiMessageRecurringTaskRepository
 {
-    public ApiMessageRecurringTaskRepository(DbContext context, IMapper mapper) : base(context, mapper)
+    public ApiMessageRecurringTaskRepository(MessagingDbContext context, IMapper mapper) : base(context, mapper)
     {
 
     }

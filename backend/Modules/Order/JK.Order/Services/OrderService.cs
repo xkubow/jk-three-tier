@@ -9,6 +9,7 @@ using JK.Platform.Persistence.EfCore;
 using JK.Order.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace JK.Order.Services;
@@ -20,13 +21,15 @@ public class OrderService : IOrderService
     private readonly IMapper _mapper;
     private readonly IOptionsSnapshot<OrderConfiguration> _configuration;
     private readonly IApiMessageTaskGrpcClient _apiMessageTaskGrpcClient;
+    private readonly ILogger<OrderService> _logger;
 
-    public OrderService(IUnitOfWorkFactory<OrderDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OrderConfiguration> configuration, IApiMessageTaskGrpcClient apiMessageTaskGrpcClient)
+    public OrderService(IUnitOfWorkFactory<OrderDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OrderConfiguration> configuration, IApiMessageTaskGrpcClient apiMessageTaskGrpcClient, ILogger<OrderService> logger)
     {
         _unitOfWork = unitOfWorkFactory.Create();
         _mapper = mapper;
         _configuration = configuration;
         _apiMessageTaskGrpcClient = apiMessageTaskGrpcClient;
+        _logger = logger;
     }
 
     public async Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -88,8 +91,9 @@ public class OrderService : IOrderService
 
     public async Task Test()
     {
+        _logger.LogInformation("Starting test from Order Service");
         await _apiMessageTaskGrpcClient.CreateAsync(new CreateApiMessageTaskRequest() { TaskId = Guid.NewGuid().ToString() + "_order_test", TaskName = "Test", TargetUrl = "grpcs://localhost:7005/jk.offer.OfferGrpc/Test", MaxAttempts = 3 });
-        Console.WriteLine("Test from Order Service");
+        _logger.LogInformation("Test from Order Service completed");
     }
 }
 

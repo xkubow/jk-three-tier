@@ -17,7 +17,23 @@ public class ApiMessageRecurringTaskStartupService: IHostedService
         var grain = _grainFactory.GetGrain<IApiMessageRecurringTaskSchedulerGrain>(
             "api-message-recurring-scheduler");
 
-        await grain.EnsureSyncReminderAsync();
+        int retryCount = 0;
+        const int maxRetries = 5;
+
+        while (true)
+        {
+            try
+            {
+                await grain.EnsureSyncReminderAsync();
+                break;
+            }
+            catch (OrleansMessageRejectionException ex) when (retryCount < maxRetries)
+            {
+                retryCount++;
+                // Wait a bit for the cluster membership to stabilize
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            }
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
