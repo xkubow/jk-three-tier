@@ -3,8 +3,8 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore Api/JK.Offer.CZ/JK.Offer.CZ.csproj
-RUN dotnet publish Api/JK.Offer.CZ/JK.Offer.CZ.csproj -c Release -o /app/publish
+RUN dotnet restore backend/Api/JK.Offer.CZ/JK.Offer.CZ.csproj
+RUN dotnet publish backend/Api/JK.Offer.CZ/JK.Offer.CZ.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
