@@ -17,8 +17,8 @@ public static class PlatformSerilogExtensions
     {
         return hostBuilder.UseSerilog((context, services, loggerConfiguration) =>
         {
-            if (!context.Configuration.UsePlatformSerilog())
-                return;
+            // if (!context.Configuration.UsePlatformSerilog())
+            //     return;
 
             var configurators = services
                 .GetServices<IPlatformSerilogConfigurator>()
@@ -115,14 +115,22 @@ public static class PlatformSerilogExtensions
         loggerConfiguration
             .ReadFrom.Configuration(configuration)
             .ReadFrom.Services(services)
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+            .MinimumLevel.Override("Orleans", LogEventLevel.Information)
             .MinimumLevel.Override("System", LogEventLevel.Warning)
             .Enrich.WithProperty("ApplicationName", applicationName)
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
-            .Enrich.WithExceptionDetails(destructuringOptionsBuilder)
-            .WriteTo.Console(new RenderedCompactJsonFormatter());
+            .Enrich.WithExceptionDetails(destructuringOptionsBuilder);
+
+        // Keep console logging as a fallback, but avoid duplicating it
+        // when the application already defines sinks in Serilog config.
+        if (!configuration.GetSection("Serilog:WriteTo").GetChildren().Any())
+        {
+            loggerConfiguration.WriteTo.Console(new RenderedCompactJsonFormatter());
+        }
     }
 }

@@ -19,14 +19,27 @@ declare -A SELECTED_DEPLOYABLES=()
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+IMAGE_TAG_FILE="$REPO_ROOT/.backend-image-tag"
+IMAGE_TAG="local"
+TEMP_MANIFEST_DIR=""
+
+cleanup() {
+  if [[ -n "$TEMP_MANIFEST_DIR" && -d "$TEMP_MANIFEST_DIR" ]]; then
+    rm -rf "$TEMP_MANIFEST_DIR"
+  fi
+}
+
+trap cleanup EXIT
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [-ay] [--wait | -w] [target ...]
+Usage: $(basename "$0") [-ay] [--wait | -w] [-t target[,target...]] [target ...]
 
 Imports selected *-local.tar images from the repo root into k3s, optionally applies
-selected backend manifests, rollout restarts the requested workloads, optionally waits
-for rollout completion, then watches Pods.
+selected backend manifests rendered with the latest built image tag, updates backend
+Deployments to the latest built image tag when manifests are not applied, rollout
+restarts the requested workloads, optionally waits for rollout completion, then
+watches Pods.
 
 If no target is provided, defaults to: ${DEFAULT_RESTART_TARGETS[*]}
 
@@ -36,6 +49,7 @@ Targets:
   <pod-name>     Resolve the Pod to its owning Deployment/DaemonSet/StatefulSet and restart that
 
 Options:
+  -t, --target  Target selector; may be repeated and may contain comma-separated values
   -ay           kubectl apply selected backend manifests from k8s/*.yaml
   --wait, -w    kubectl rollout status per restarted workload (timeout ${ROLLOUT_TIMEOUT} each)
   -h, --help    Show this help and examples
@@ -49,6 +63,9 @@ show_help() {
   echo "  $(basename "$0")"
   echo "  $(basename "$0") alloy"
   echo "  $(basename "$0") frontend postgres"
+  echo "  $(basename "$0") -t alloy"
+  echo "  $(basename "$0") -t configuration,order"
+  echo "  $(basename "$0") --target alloy --target frontend"
   echo "  $(basename "$0") all --wait"
   echo "  $(basename "$0") configuration-6d8bf9f6c9-abcde"
   echo
@@ -59,6 +76,52 @@ show_help() {
 
 have_ns() {
   kubectl get ns "$1" &>/dev/null
+}
+
+trim_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s\n' "$value"
+}
+
+load_image_tag() {
+  local tag=""
+
+  if [[ -f "$IMAGE_TAG_FILE" ]]; then
+    tag="$(<"$IMAGE_TAG_FILE")"
+    tag="$(trim_whitespace "$tag")"
+  fi
+
+  if [[ -n "$tag" ]]; then
+    IMAGE_TAG="$tag"
+    return 0
+  fi
+
+  echo "No image tag file found at $IMAGE_TAG_FILE; defaulting backend images to tag '$IMAGE_TAG'." >&2
+}
+
+ensure_temp_manifest_dir() {
+  if [[ -z "$TEMP_MANIFEST_DIR" ]]; then
+    TEMP_MANIFEST_DIR=$(mktemp -d)
+  fi
+}
+
+append_target_arg() {
+  local raw="$1"
+  local item trimmed
+  local -a items=()
+
+  IFS=',' read -r -a items <<<"$raw"
+
+  for item in "${items[@]}"; do
+    trimmed=$(trim_whitespace "$item")
+    if [[ -z "$trimmed" ]]; then
+      echo "Empty target in list '$raw'." >&2
+      exit 1
+    fi
+    REQUESTED_TARGETS+=("$trimmed")
+  done
 }
 
 is_deployable_app() {
@@ -78,11 +141,38 @@ image_tar_for() {
   esac
 }
 
+image_ref_for() {
+  case "$1" in
+    configuration) printf '%s\n' "jk-configuration:${IMAGE_TAG}" ;;
+    messaging) printf '%s\n' "jk-messaging:${IMAGE_TAG}" ;;
+    offer) printf '%s\n' "jk-offer:${IMAGE_TAG}" ;;
+    order) printf '%s\n' "jk-order:${IMAGE_TAG}" ;;
+    *) return 1 ;;
+  esac
+}
+
 manifest_for() {
   case "$1" in
     configuration|messaging|offer|order) printf '%s\n' "$1" ;;
     *) return 1 ;;
   esac
+}
+
+render_manifest_for() {
+  local app="$1"
+  local manifest source_manifest rendered_manifest image_ref
+
+  manifest=$(manifest_for "$app")
+  source_manifest="$REPO_ROOT/k8s/${manifest}.yaml"
+  image_ref=$(image_ref_for "$app")
+
+  ensure_temp_manifest_dir
+  rendered_manifest="$TEMP_MANIFEST_DIR/${manifest}.yaml"
+
+  sed -E "s|(^[[:space:]]*image:[[:space:]]*)jk-${app}:[^[:space:]]+|\\1${image_ref}|g" \
+    "$source_manifest" > "$rendered_manifest"
+
+  printf '%s\n' "$rendered_manifest"
 }
 
 add_watch_namespace() {
@@ -222,6 +312,7 @@ import_selected_images() {
   local app tar imported_any=0
 
   echo "Repo root: $REPO_ROOT"
+  echo "Using backend image tag: $IMAGE_TAG"
   echo "Importing images into k3s (requires sudo)..."
   echo
 
@@ -244,7 +335,7 @@ import_selected_images() {
 }
 
 apply_selected_manifests() {
-  local app manifest applied_any=0
+  local app manifest rendered_manifest applied_any=0
 
   [[ "$APPLY_YAML" -eq 1 ]] || return 0
 
@@ -255,13 +346,37 @@ apply_selected_manifests() {
       continue
     fi
     manifest=$(manifest_for "$app")
-    echo "Applying k8s/${manifest}.yaml..."
-    kubectl apply -f "$REPO_ROOT/k8s/${manifest}.yaml"
+    rendered_manifest=$(render_manifest_for "$app")
+    echo "Applying rendered k8s/${manifest}.yaml with image $(image_ref_for "$app")..."
+    kubectl apply -f "$rendered_manifest"
     applied_any=1
   done
 
   if [[ "$applied_any" -eq 0 ]]; then
     echo "No backend manifests selected for apply."
+  fi
+}
+
+update_selected_images() {
+  local app image updated_any=0
+
+  [[ "$APPLY_YAML" -eq 1 ]] && return 0
+
+  echo
+  echo "Updating backend deployment images..."
+  for app in "${DEFAULT_RESTART_TARGETS[@]}"; do
+    if [[ -z "${SELECTED_DEPLOYABLES[$app]+x}" ]]; then
+      continue
+    fi
+
+    image=$(image_ref_for "$app")
+    echo "Setting deployment/$app image to $image..."
+    kubectl set image "deployment/$app" "$app=$image" -n "$NS_APP"
+    updated_any=1
+  done
+
+  if [[ "$updated_any" -eq 0 ]]; then
+    echo "No backend deployment images selected for update."
   fi
 }
 
@@ -308,6 +423,18 @@ watch_pods() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -t|--target)
+      if [[ $# -lt 2 ]]; then
+        echo "Option $1 requires a target value." >&2
+        usage >&2
+        exit 1
+      fi
+      append_target_arg "$2"
+      shift
+      ;;
+    --target=*)
+      append_target_arg "${1#*=}"
+      ;;
     -ay) APPLY_YAML=1 ;;
     --wait|-w) WAIT_ROLLOUT=1 ;;
     -h|--help|/h)
@@ -320,7 +447,7 @@ while [[ $# -gt 0 ]]; do
       exit 1
       ;;
     *)
-      REQUESTED_TARGETS+=("$1")
+      append_target_arg "$1"
       ;;
   esac
   shift
@@ -328,9 +455,11 @@ done
 
 cd "$REPO_ROOT"
 
+load_image_tag
 resolve_requested_targets
 import_selected_images
 apply_selected_manifests
+update_selected_images
 rollout_restart_targets
 wait_for_rollouts
 watch_pods

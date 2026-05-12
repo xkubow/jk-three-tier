@@ -15,7 +15,7 @@ public sealed class OfferSerilogConfigurator : IPlatformSerilogConfigurator
     public void Configure(LoggerConfiguration loggerConfiguration)
     {
         loggerConfiguration
-            .MinimumLevel.Override("JK.Configuration", LogEventLevel.Debug);
+            .MinimumLevel.Override("JK.Configuration", LogEventLevel.Information);
     }
 
     public void Configure(DestructuringOptionsBuilder destructuringOptionsBuilder)

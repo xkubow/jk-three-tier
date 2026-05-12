@@ -4,6 +4,7 @@ using JK.Configuration.Contracts;
 using JK.Configuration.Models;
 using JK.Configuration.Proto;
 using JK.Configuration.Services;
+using Microsoft.Extensions.Logging;
 using CreateConfigurationRequest = JK.Configuration.Proto.CreateConfigurationRequest;
 using ListConfigurationRequest = JK.Configuration.Proto.ListConfigurationRequest;
 using UpdateConfigurationRequest = JK.Configuration.Proto.UpdateConfigurationRequest;
@@ -14,11 +15,13 @@ public class ConfigurationGrpcPort : ConfigurationGrpc.ConfigurationGrpcBase
 {
     private readonly IConfigurationService _service;
     private readonly IMapper _mapper;
+    private readonly ILogger<ConfigurationGrpcPort> _logger;
 
-    public ConfigurationGrpcPort(IConfigurationService service, IMapper mapper)
+    public ConfigurationGrpcPort(IConfigurationService service, IMapper mapper, ILogger<ConfigurationGrpcPort> logger)
     {
         _service = service;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public override async Task<ConfigurationMessage> GetById(GetConfigurationByIdRequest request, ServerCallContext context)

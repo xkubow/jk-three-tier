@@ -1,5 +1,8 @@
+using System.Collections.Immutable;
 using System.Reflection;
+using AutoMapper;
 using Grpc.Core;
+using JK.Configuration.Contracts;
 using JK.Configuration.Proto;
 using JK.Platform.Grpc.Client.Factory;
 using Microsoft.Extensions.Configuration;
@@ -155,7 +158,7 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
         }
     }
 
-    private Dictionary<string, string?> BuildConfigurationData(IReadOnlyCollection<GrpcConfiguration> configurations, bool firstLoad)
+    private Dictionary<string, string?> BuildConfigurationData(IReadOnlyCollection<ConfigurationDto> configurations, bool firstLoad)
     {
         var newData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
         {
@@ -164,6 +167,7 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
 
         if (configurations?.Any() == true)
         {
+
             var groupedConfigurations = configurations.GroupBy(c => c.Key);
 
             foreach (var group in groupedConfigurations)
@@ -190,7 +194,7 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
         return newData;
     }
 
-    private void ProcessListConfiguration(string key, List<GrpcConfiguration> configList, Dictionary<string, string?> newData, bool firstLoad)
+    private void ProcessListConfiguration(string key, List<ConfigurationDto> configList, Dictionary<string, string?> newData, bool firstLoad)
     {
         _logger.LogDebug(
             "Processing list configuration. Key={Key}, Count={Count}",
@@ -216,14 +220,14 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
         }
     }
 
-    private void ProcessSingleConfiguration(string key, List<GrpcConfiguration> configList, Dictionary<string, string?> newData, bool firstLoad)
+    private void ProcessSingleConfiguration(string key, List<ConfigurationDto> configList, Dictionary<string, string?> newData, bool firstLoad)
     {
         var configuration = configList.First();
 
         if (configList.Count > 1)
         {
             _logger.LogWarning(
-                "ConfigurationServerProvider duplicate key detected for non-list configuration. Key={Key}, Count={Count}",
+                "ConfigurationServerProvider duplicate keyyy detected for non-list configuration. Key={Key}, Count={Count}",
                 key,
                 configList.Count);
         }
@@ -256,20 +260,22 @@ public sealed class ConfigurationServerProvider : ConfigurationProvider, IDispos
         }
     }
 
-    private async Task<IReadOnlyCollection<GrpcConfiguration>> LoadConfigurationAsync(CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<ConfigurationDto>> LoadConfigurationAsync(CancellationToken cancellationToken)
     {
         try
         {
             var client = _grpcClientFactory.GetClient(_configurationServerUrl);
             var result = await client.GetConfigurationAsync(_grpcConfigurationRequest, cancellationToken: cancellationToken);
+            foreach (var configurationDto in result.Configurations)
+                _logger.LogInformation("GetConfigurationAsync result key={Key}, isList={IsList}", configurationDto.Key, configurationDto.IsList);
 
             if (_firstLoad)
             {
                 _firstLoad = false;
-                _logger.LogInformation("ConfigurationServerProvider initial configuration loaded.");
+                _logger.LogInformation("ConfigurationServerProvider initial configuration loaded");
             }
 
-            return result.Configurations.ToList();
+            return  result.Configurations.Select(p => new ConfigurationDto { Key = p.Key, Value = p.Value, IsList = p.IsList }).ToImmutableList();
         }
         catch (Exception ex)
         {

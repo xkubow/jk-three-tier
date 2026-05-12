@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: configuration
-          image: jk-configuration:k8sfix1
+          image: jk-configuration:local
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
