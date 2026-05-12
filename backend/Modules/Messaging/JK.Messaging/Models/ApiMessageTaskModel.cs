@@ -8,4 +8,5 @@ public sealed class ApiMessageTaskModel : ModelBase<string>
     public int MaxAttempts { get; set; } = 5;
     public TimeSpan? Delay { get; set; }
     public TimeSpan? RetryDelay { get; set; }
+    public string? OriginalCorrelationId { get; set; }
 }

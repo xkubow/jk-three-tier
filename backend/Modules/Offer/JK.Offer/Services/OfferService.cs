@@ -89,8 +89,8 @@ public class OfferService : IOfferService
 
     public void Test()
     {
-        _logger.LogInformation("Starting test from Offer Service");
-        Console.WriteLine("Test from Offer Service");
-        _logger.LogInformation("Test from Offer Service completed");
+        _logger.LogInformation("Starting test v2 from Offer Service");
+        _logger.LogInformation("Test v2 from Offer Service");
+        _logger.LogInformation("Test v2 from Offer Service completed");
     }
 }

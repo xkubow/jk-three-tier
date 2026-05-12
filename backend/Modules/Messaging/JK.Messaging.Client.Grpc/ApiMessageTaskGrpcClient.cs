@@ -64,7 +64,10 @@ public class ApiMessageTaskGrpcClient : ClientBaseDecorator<GrpcApiMessageTask.G
             CreatedOn = response.CreatedOn?.ToDateTime() ?? DateTime.MinValue,
             StartTime = response.StartTime?.ToDateTime(),
             FinishTime = response.FinishTime?.ToDateTime(),
-            NextRetryOn = response.NextRetryOn?.ToDateTime()
+            NextRetryOn = response.NextRetryOn?.ToDateTime(),
+            OriginalCorrelationId = string.IsNullOrWhiteSpace(response.OriginalCorrelationId)
+                ? null
+                : response.OriginalCorrelationId
         };
     }
 }

@@ -1,5 +1,6 @@
 using JK.Platform.Database.Migrations;
 using JK.Platform.Core.AspNetCore.Discovery;
+using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
 using JK.Platform.Rest.Server.Configurations;
@@ -19,10 +20,13 @@ if (builder.Environment.IsEnvironment("K8s"))
 
 var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
+builder.Services.AddPlatformCorrelation();
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
 builder.Services.AddGrpcPlatform();
 builder.Services.AddHealthChecks();
+builder.Services.AddPlatformSerilog();
+builder.Host.UsePlatformSerilog();
 
 var moduleInstallerTypes = DomainDiscovery.FindModuleInstallerTypes();
 var installers = DomainDiscovery.CreateModuleInstallers(moduleInstallerTypes);
@@ -37,6 +41,9 @@ var app = builder.Build();
 
 if (app.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
     app.Services.RunBackendMigrations();
+
+app.UsePlatformCorrelation();
+app.UsePlatformSerilogRequestLogging();
 
 app.UseRouting();
 app.UsePlatformCors();

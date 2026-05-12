@@ -8,4 +8,5 @@ public class RegisterApiMessageTaskCommand
     [Id(2)] public int MaxAttempts { get; set; } = 5;
     [Id(3)] public TimeSpan? Delay { get; set; }
     [Id(4)] public TimeSpan? RetryDelay { get; set; }
+    [Id(5)] public string? OriginalCorrelationId { get; set; }
 }

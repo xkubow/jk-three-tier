@@ -17,6 +17,7 @@ builder.AddConfigurationServerProvider();
 
 var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
+builder.Services.AddPlatformCorrelation();
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
 builder.Services.AddHealthChecks();
@@ -32,6 +33,7 @@ foreach (var installer in installers)
 
 var app = builder.Build();
 
+app.UsePlatformCorrelation();
 app.UseRouting();
 app.UsePlatformCors();
 

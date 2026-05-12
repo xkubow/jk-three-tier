@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using JK.Messaging.Contracts.Enums;
+using JK.Platform.Core.Correlation;
 using JK.Platform.Persistence.EfCore;
 
 namespace JK.Messaging.Database.Entities;
@@ -33,6 +34,10 @@ public class ApiMessageTaskEntity : EntityBase<string>
     public DateTime? FinishOn { get; set; }
 
     public DateTime? NextRetryOn { get; set; }
+
+    [MaxLength(CorrelationIdConstants.MaxLength)]
+    public string? OriginalCorrelationId { get; set; }
+
     [Column(TypeName = "jsonb")]
     public string? ConsumerResults { get; set; }
 }

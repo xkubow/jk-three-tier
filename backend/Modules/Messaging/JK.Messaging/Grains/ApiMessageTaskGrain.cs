@@ -7,6 +7,7 @@ using JK.Messaging.Database.Repositories;
 using JK.Messaging.Database;
 using JK.Messaging.Models;
 using JK.Messaging.States;
+using JK.Platform.Core.Correlation;
 using JK.Platform.Grpc.Client.Factory;
 using JK.Platform.Persistence.EfCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
     private readonly ILogger<ApiMessageTaskGrain> _logger;
     private readonly IUnitOfWork<MessagingDbContext> _unitOfWork;
     private readonly IGrpcGenericClientFactory _genericClientFactory;
+    private readonly ICorrelationContextAccessor _correlationContextAccessor;
     private readonly IConfiguration _configuration;
 
     public ApiMessageTaskGrain(
@@ -28,12 +30,14 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         ILogger<ApiMessageTaskGrain> logger,
         IUnitOfWorkFactory<MessagingDbContext> unitOfWorkFactory,
         IGrpcGenericClientFactory genericClientFactory,
+        ICorrelationContextAccessor correlationContextAccessor,
         IConfiguration configuration)
     {
         _taskState = taskState;
         _logger = logger;
         _unitOfWork = unitOfWorkFactory.Create();
         _genericClientFactory = genericClientFactory;
+        _correlationContextAccessor = correlationContextAccessor;
         _configuration = configuration;
     }
 
@@ -60,6 +64,8 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         _taskState.State.StartTime = DateTime.UtcNow.Add(delay);
         _taskState.State.FinishTime = null;
         _taskState.State.NextRetryOn = null;
+        _taskState.State.OriginalCorrelationId = CorrelationContextAccessor.NormalizeOrCreate(
+            taskModel.OriginalCorrelationId ?? _correlationContextAccessor.CorrelationId);
 
         await _taskState.WriteStateAsync();
         await UpsertTaskEntityAsync();
@@ -95,6 +101,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         entity.LastError = _taskState.State.LastError;
         entity.NextRetryOn = _taskState.State.NextRetryOn;
         entity.FinishOn = _taskState.State.FinishTime;
+        entity.OriginalCorrelationId = _taskState.State.OriginalCorrelationId;
 
         if (IsFinishState(_taskState.State.TaskState))
         {
@@ -110,12 +117,21 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
 
         try
         {
+            var originalCorrelationId = EnsureOriginalCorrelationId(entity);
+            using var correlationScope = _correlationContextAccessor.Push(originalCorrelationId);
+
+            _taskState.State.LastError = null;
+            _taskState.State.NextRetryOn = null;
+            entity.LastError = null;
+            entity.NextRetryOn = null;
+
             await UpdateStateAsync(entity, ApiMessageStateEnum.Processing);
 
             var consumerUrls = GetConsumerUrlsFromConfiguration(_taskState.State.TaskName);
-            var consumerResults = new Dictionary<string, string>();
+            var consumerResults = InitializeConsumerResults(consumerUrls, _taskState.State.ConsumerResults);
+            var urlsToProcess = GetUrlsToProcess(consumerUrls, consumerResults);
 
-            foreach (var url in consumerUrls)
+            foreach (var url in urlsToProcess)
             {
                 try
                 {
@@ -132,11 +148,42 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             _taskState.State.ConsumerResults = consumerResults;
             entity.ConsumerResults = System.Text.Json.JsonSerializer.Serialize(consumerResults);
 
-            _taskState.State.LastError = null;
-            _taskState.State.NextRetryOn = null;
+            var failedUrls = consumerResults
+                .Where(result => !IsSuccessResult(result.Value))
+                .ToList();
 
-            await UpdateStateAsync(entity, ApiMessageStateEnum.Done);
-            await DeactivateGrainAsync(reminderName);
+            if (failedUrls.Count == 0)
+            {
+                _taskState.State.LastError = null;
+                _taskState.State.NextRetryOn = null;
+
+                await UpdateStateAsync(entity, ApiMessageStateEnum.Done);
+                await DeactivateGrainAsync(reminderName);
+                return;
+            }
+
+            _taskState.State.Attempts++;
+            _taskState.State.LastError = BuildLastError(failedUrls);
+
+            if (_taskState.State.Attempts >= _taskState.State.MaxAttempts)
+            {
+                _taskState.State.NextRetryOn = null;
+                await UpdateStateAsync(entity, ApiMessageStateEnum.Failed);
+                await DeactivateGrainAsync(reminderName);
+                return;
+            }
+
+            _taskState.State.NextRetryOn = DateTime.UtcNow.AddMinutes(3);
+            _taskState.State.TaskState = ApiMessageStateEnum.Failed;
+
+            entity.Attempts = _taskState.State.Attempts;
+            entity.State = _taskState.State.TaskState;
+            entity.LastError = _taskState.State.LastError;
+            entity.NextRetryOn = _taskState.State.NextRetryOn;
+            entity.ConsumerResults = System.Text.Json.JsonSerializer.Serialize(consumerResults);
+
+            await _taskState.WriteStateAsync();
+            await SaveTaskEntityAsync(entity);
         }
         catch (Exception ex)
         {
@@ -188,7 +235,59 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
 
         return urls
             .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Distinct()
             .ToList();
+    }
+
+    private static Dictionary<string, string> InitializeConsumerResults(
+        IEnumerable<string> consumerUrls,
+        Dictionary<string, string>? existingResults)
+    {
+        var consumerResults = new Dictionary<string, string>();
+
+        foreach (var url in consumerUrls)
+        {
+            if (existingResults != null && existingResults.TryGetValue(url, out var existingResult))
+            {
+                consumerResults[url] = existingResult;
+            }
+        }
+
+        return consumerResults;
+    }
+
+    private static List<string> GetUrlsToProcess(
+        IEnumerable<string> consumerUrls,
+        IReadOnlyDictionary<string, string> consumerResults)
+    {
+        return consumerUrls
+            .Where(url => !consumerResults.TryGetValue(url, out var result) || !IsSuccessResult(result))
+            .ToList();
+    }
+
+    private static bool IsSuccessResult(string? result)
+        => string.Equals(result, "Success", StringComparison.Ordinal);
+
+    private static string BuildLastError(IEnumerable<KeyValuePair<string, string>> failedUrls)
+    {
+        var failedConsumerUrls = failedUrls
+            .Select(result => result.Key)
+            .ToList();
+
+        return failedConsumerUrls.Count == 1
+            ? $"Consumer failed: {failedConsumerUrls[0]}"
+            : $"Consumers failed: {string.Join(", ", failedConsumerUrls)}";
+    }
+
+    private string EnsureOriginalCorrelationId(ApiMessageTaskEntity entity)
+    {
+        var originalCorrelationId = CorrelationContextAccessor.NormalizeOrCreate(
+            _taskState.State.OriginalCorrelationId ?? entity.OriginalCorrelationId);
+
+        _taskState.State.OriginalCorrelationId = originalCorrelationId;
+        entity.OriginalCorrelationId = originalCorrelationId;
+
+        return originalCorrelationId;
     }
     
     private async Task SendGrpcMessageAsync(string fullUrl)
@@ -240,6 +339,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
         entity.TaskName = _taskState.State.TaskName;
         entity.CreatedOn = _taskState.State.CreatedOn;
         entity.StartOn = _taskState.State.StartTime;
+        entity.OriginalCorrelationId = _taskState.State.OriginalCorrelationId;
 
         if (_taskState.State.ConsumerResults != null)
         {
@@ -276,6 +376,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             StartOn = _taskState.State.StartTime,
             FinishOn = _taskState.State.FinishTime,
             NextRetryOn = _taskState.State.NextRetryOn,
+            OriginalCorrelationId = _taskState.State.OriginalCorrelationId,
             ConsumerResults = _taskState.State.ConsumerResults != null 
                 ? System.Text.Json.JsonSerializer.Serialize(_taskState.State.ConsumerResults) 
                 : null
@@ -308,6 +409,7 @@ public sealed class ApiMessageTaskGrain : Grain, IRemindable, IApiMessageTaskGra
             existing.StartOn = entity.StartOn;
             existing.FinishOn = entity.FinishOn;
             existing.NextRetryOn = entity.NextRetryOn;
+            existing.OriginalCorrelationId = entity.OriginalCorrelationId;
             existing.ConsumerResults = entity.ConsumerResults;
 
             await repository.UpdateEntityAsync(existing);

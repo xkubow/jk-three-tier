@@ -3,6 +3,7 @@ using Grpc.Core;
 using JK.Messaging.Contracts;
 using JK.Messaging.Grains;
 using JK.Messaging.Proto;
+using JK.Platform.Core.Correlation;
 using Orleans;
 using ApiMessageState = JK.Messaging.Proto.ApiMessageState;
 using CreateApiMessageTaskRequest = JK.Messaging.Proto.CreateApiMessageTaskRequest;
@@ -12,10 +13,14 @@ namespace JK.Messaging.Grpc;
 public class ApiMessageTaskGrpcService : GrpcApiMessageTask.GrpcApiMessageTaskBase
 {
     private readonly IClusterClient _clusterClient;
+    private readonly ICorrelationContextAccessor _correlationContextAccessor;
 
-    public ApiMessageTaskGrpcService(IClusterClient clusterClient)
+    public ApiMessageTaskGrpcService(
+        IClusterClient clusterClient,
+        ICorrelationContextAccessor correlationContextAccessor)
     {
         _clusterClient = clusterClient;
+        _correlationContextAccessor = correlationContextAccessor;
     }
 
     public override async Task<ApiMessageTaskStateResponse> Create(CreateApiMessageTaskRequest request, ServerCallContext context)
@@ -28,7 +33,8 @@ public class ApiMessageTaskGrpcService : GrpcApiMessageTask.GrpcApiMessageTaskBa
             TaskName = request.TaskName,
             MaxAttempts = request.MaxAttempts,
             Delay = request.Delay?.ToTimeSpan(),
-            RetryDelay = request.RetryDelay?.ToTimeSpan()
+            RetryDelay = request.RetryDelay?.ToTimeSpan(),
+            OriginalCorrelationId = _correlationContextAccessor.GetOrCreateCorrelationId()
         });
 
         if (!registered)
@@ -66,7 +72,8 @@ public class ApiMessageTaskGrpcService : GrpcApiMessageTask.GrpcApiMessageTaskBa
             CreatedOn = Timestamp.FromDateTime(DateTime.SpecifyKind(state.CreatedOn, DateTimeKind.Utc)),
             StartTime = state.StartTime.HasValue ? Timestamp.FromDateTime(DateTime.SpecifyKind(state.StartTime.Value, DateTimeKind.Utc)) : null,
             FinishTime = state.FinishTime.HasValue ? Timestamp.FromDateTime(DateTime.SpecifyKind(state.FinishTime.Value, DateTimeKind.Utc)) : null,
-            NextRetryOn = state.NextRetryOn.HasValue ? Timestamp.FromDateTime(DateTime.SpecifyKind(state.NextRetryOn.Value, DateTimeKind.Utc)) : null
+            NextRetryOn = state.NextRetryOn.HasValue ? Timestamp.FromDateTime(DateTime.SpecifyKind(state.NextRetryOn.Value, DateTimeKind.Utc)) : null,
+            OriginalCorrelationId = state.OriginalCorrelationId ?? string.Empty
         };
     }
 }

@@ -14,4 +14,5 @@ public class ApiMessageTaskDto
     public DateTime? StartTime { get; set; }
     public DateTime? FinishTime { get; set; }
     public DateTime? NextRetryOn { get; set; }
+    public string? OriginalCorrelationId { get; set; }
 }

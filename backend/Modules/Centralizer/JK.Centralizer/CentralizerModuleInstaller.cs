@@ -2,6 +2,7 @@ using AutoMapper;
 using JK.Order.Client.Grpc;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
+using JK.Platform.Grpc.Client.Factory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,8 @@ public class CentralizerModuleInstaller : IModuleInstaller
         var orderServiceUrl = configuration["GrpcClients:OrderService:Url"];
         if (!string.IsNullOrEmpty(orderServiceUrl))
         {
-            services.AddScoped<IOrderGrpcClient>(_ => new OrderGrpcClient(orderServiceUrl));
+            services.AddScoped<IOrderGrpcClient>(serviceProvider =>
+                new OrderGrpcClient(serviceProvider.GetRequiredService<IGrpcChannelFactory>().GetChannel(orderServiceUrl)));
         }
     }
 

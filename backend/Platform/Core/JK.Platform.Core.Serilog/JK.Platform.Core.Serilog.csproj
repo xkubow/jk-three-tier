@@ -20,4 +20,8 @@
         <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\JK.Platform.Core\JK.Platform.Core.csproj" />
+    </ItemGroup>
+
 </Project>

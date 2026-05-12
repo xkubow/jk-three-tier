@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\JK.Platform.Core.AspNetCore\JK.Platform.Core.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
   </ItemGroup>
 
 </Project>

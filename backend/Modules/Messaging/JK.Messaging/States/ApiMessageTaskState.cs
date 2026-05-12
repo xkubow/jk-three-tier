@@ -35,5 +35,8 @@ public sealed class ApiMessageTaskState
     public DateTime? NextRetryOn { get; set; }
 
     [Id(10)]
-    public Dictionary<string, string> ConsumerResults { get; set; }
+    public Dictionary<string, string> ConsumerResults { get; set; } = new();
+
+    [Id(11)]
+    public string? OriginalCorrelationId { get; set; }
 }

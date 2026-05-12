@@ -33,6 +33,7 @@ builder.Host.UsePlatformSerilog();
 
 var mvcBuilder = builder.Services.AddPlatformRestServer(builder.Configuration);
 
+builder.Services.AddPlatformCorrelation();
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
 builder.Services.AddGrpcPlatform();
@@ -52,6 +53,7 @@ var app = builder.Build();
 if (app.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
     app.Services.RunBackendMigrations();
 
+app.UsePlatformCorrelation();
 app.UsePlatformSerilogRequestLogging();
 
 app.UseRouting();

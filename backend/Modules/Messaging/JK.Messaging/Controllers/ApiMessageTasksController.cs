@@ -2,6 +2,7 @@ using JK.Messaging.Contracts;
 using JK.Messaging.Grains;
 using JK.Messaging.Models;
 using JK.Messaging.States;
+using JK.Platform.Core.Correlation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,14 @@ namespace JK.Messaging.Controllers;
 public class ApiMessageTasksController : ControllerBase
 {
     private readonly IClusterClient _clusterClient;
+    private readonly ICorrelationContextAccessor _correlationContextAccessor;
 
-    public ApiMessageTasksController(IClusterClient clusterClient)
+    public ApiMessageTasksController(
+        IClusterClient clusterClient,
+        ICorrelationContextAccessor correlationContextAccessor)
     {
         _clusterClient = clusterClient;
+        _correlationContextAccessor = correlationContextAccessor;
     }
 
     [HttpPost]
@@ -36,7 +41,8 @@ public class ApiMessageTasksController : ControllerBase
             TaskName = request.TaskName,
             MaxAttempts = request.MaxAttempts,
             Delay = request.Delay,
-            RetryDelay = request.RetryDelay
+            RetryDelay = request.RetryDelay,
+            OriginalCorrelationId = _correlationContextAccessor.GetOrCreateCorrelationId()
         });
 
         if (!registered)

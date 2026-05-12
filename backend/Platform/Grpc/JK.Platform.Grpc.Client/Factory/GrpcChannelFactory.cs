@@ -2,6 +2,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
+using JK.Platform.Grpc.Abstraction;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,12 +29,15 @@ public sealed class GrpcChannelFactory : IGrpcChannelFactory, IDisposable
         IServiceProvider serviceProvider,
         ILogger<GrpcChannelFactory> logger,
         IOptionsMonitor<GrpcClientConfiguration> configuration,
-        IEnumerable<Interceptor> interceptors)
+        IEnumerable<IClientInterceptor> interceptors)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
         _configuration = configuration;
-        _interceptors = interceptors.ToArray();
+        _interceptors = interceptors
+            .Select(static interceptor => interceptor as Interceptor
+                ?? throw new InvalidOperationException($"{interceptor.GetType().FullName} must inherit {nameof(Interceptor)}."))
+            .ToArray();
 
         _configuration.OnChange(_ =>
         {

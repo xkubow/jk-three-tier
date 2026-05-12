@@ -1,11 +1,20 @@
+using JK.Platform.Core.Correlation;
 using JK.Platform.Http.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace JK.Platform.Http.Configurations;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddPlatformCorrelation(this IServiceCollection services)
+    {
+        services.TryAddSingleton<ICorrelationContextAccessor, CorrelationContextAccessor>();
+
+        return services;
+    }
+
     public static IServiceCollection AddPlatformCors(
         this IServiceCollection services,
         IConfiguration configuration)

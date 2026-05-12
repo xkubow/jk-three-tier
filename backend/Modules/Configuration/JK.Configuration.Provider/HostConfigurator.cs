@@ -1,6 +1,6 @@
-using Grpc.Core.Interceptors;
 using Grpc.Net.Client.Balancer;
 using JK.Configuration.Proto;
+using JK.Platform.Core.Correlation;
 using JK.Platform.Core.DependencyInjection;
 using JK.Platform.Grpc.Client;
 using JK.Platform.Grpc.Client.Factory;
@@ -47,11 +47,10 @@ public static class HostConfigurator
             logging.AddConsole();
         });
 
+        services.AddSingleton<ICorrelationContextAccessor, CorrelationContextAccessor>();
         services.AddSingleton<IOptionsMonitor<GrpcClientConfiguration>>(new GrpcClientConfigurationOptionsMonitor(grpcClientConfiguration));
 
         services.AddSingleton<ResolverFactory>(new DnsResolverFactory(TimeSpan.FromSeconds(5)));
-
-        services.AddSingleton<IEnumerable<Interceptor>>(_ => Array.Empty<Interceptor>());
 
         services.RegisterInjectableServices(typeof(GrpcChannelFactory).Assembly);
 

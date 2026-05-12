@@ -1,4 +1,5 @@
 using System.Reflection;
+using JK.Platform.Core.Correlation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,26 +68,33 @@ public static class PlatformSerilogExtensions
             {
                 var request = httpContext.Request;
                 var response = httpContext.Response;
+                var host = request.Host.Value ?? string.Empty;
+                var path = request.Path.Value ?? string.Empty;
+                var queryString = request.QueryString.Value ?? string.Empty;
+                var contentType = response.ContentType ?? string.Empty;
 
                 diagnosticContext.Set("Protocol", request.Protocol);
                 diagnosticContext.Set("Method", request.Method);
                 diagnosticContext.Set("Scheme", request.Scheme);
-                diagnosticContext.Set("Host", request.Host.Value);
-                diagnosticContext.Set("Path", request.Path.Value);
-                diagnosticContext.Set("QueryString", request.QueryString.Value);
+                diagnosticContext.Set("Host", host);
+                diagnosticContext.Set("Path", path);
+                diagnosticContext.Set("QueryString", queryString);
                 diagnosticContext.Set("StatusCode", response.StatusCode);
-                diagnosticContext.Set("ContentType", response.ContentType);
+                diagnosticContext.Set("ContentType", contentType);
+                diagnosticContext.Set(CorrelationIdConstants.LogPropertyName, httpContext.TraceIdentifier);
 
                 var activity = System.Diagnostics.Activity.Current;
                 if (activity != null)
                 {
+                    diagnosticContext.Set("TraceId", activity.TraceId.ToString());
+                    activity.SetTag(CorrelationIdConstants.ActivityTagName, httpContext.TraceIdentifier);
                     activity.SetTag("http.protocol", request.Protocol);
                     activity.SetTag("http.scheme", request.Scheme);
-                    activity.SetTag("http.host", request.Host.Value);
-                    activity.SetTag("http.path", request.Path.Value);
-                    activity.SetTag("http.query", request.QueryString.Value);
+                    activity.SetTag("http.host", host);
+                    activity.SetTag("http.path", path);
+                    activity.SetTag("http.query", queryString);
                     activity.SetTag("http.status_code", response.StatusCode);
-                    activity.SetTag("http.content_type", response.ContentType);
+                    activity.SetTag("http.content_type", contentType);
                 }
             };
         });

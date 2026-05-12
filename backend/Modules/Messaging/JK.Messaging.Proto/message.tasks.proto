@@ -57,6 +57,7 @@ message ApiMessageTaskStateResponse {
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp finish_time = 9;
   google.protobuf.Timestamp next_retry_on = 10;
+  string original_correlation_id = 11;
 }
 
 enum ApiMessageState {

@@ -23,6 +23,7 @@ public abstract class HttpStartupConfigurator : IStartupConfigurator
 
     public virtual void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddPlatformCorrelation();
         services.AddGrpc();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
@@ -33,6 +34,7 @@ public abstract class HttpStartupConfigurator : IStartupConfigurator
 
     public virtual void ConfigureMiddleware(IApplicationBuilder app, IConfiguration configuration)
     {
+        app.UsePlatformCorrelation();
         app.UseHttpsRedirection();
     }
 

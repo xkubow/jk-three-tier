@@ -15,11 +15,13 @@ spec:
     spec:
       containers:
         - name: configuration
-          image: jk-configuration:local
+          image: jk-configuration:v3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+              name: http
             - containerPort: 8081
+              name: grpc
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "K8s"
