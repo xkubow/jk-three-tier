@@ -1,5 +1,6 @@
 using JK.Platform.Database.Migrations;
 using JK.Platform.Core.AspNetCore.Discovery;
+using JK.Platform.Core.Observability;
 using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
@@ -25,6 +26,7 @@ builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
 builder.Services.AddGrpcPlatform();
 builder.Services.AddHealthChecks();
+builder.Services.AddPlatformOpenTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddPlatformSerilog();
 builder.Host.UsePlatformSerilog();
 
@@ -33,7 +35,7 @@ var installers = DomainDiscovery.CreateModuleInstallers(moduleInstallerTypes);
 
 foreach (var installer in installers)
 {
-    installer.RegisterServices(builder.Services, builder.Configuration);
+    installer.RegisterServices(builder.Services, builder.Configuration, builder.Environment);
     installer.RegisterControllers(mvcBuilder);
 }
 

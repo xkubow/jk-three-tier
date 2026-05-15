@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
+using Serilog.Enrichers.Span;
 using Serilog.Formatting.Compact;
 
 namespace JK.Platform.Core.Serilog.Extensions;
@@ -52,6 +53,9 @@ public static class PlatformSerilogExtensions
 
             requestOptions.GetLevel = (httpContext, elapsed, exception) =>
             {
+                if (httpContext.Request.Path.StartsWithSegments("/health"))
+                    return LogEventLevel.Verbose;
+
                 if (exception != null)
                     return LogEventLevel.Error;
 
@@ -130,6 +134,7 @@ public static class PlatformSerilogExtensions
             .MinimumLevel.Override("System", LogEventLevel.Warning)
             .Enrich.WithProperty("ApplicationName", applicationName)
             .Enrich.FromLogContext()
+            .Enrich.WithSpan()
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
             .Enrich.WithExceptionDetails(destructuringOptionsBuilder);

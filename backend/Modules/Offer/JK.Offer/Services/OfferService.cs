@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using JK.Offer.Configurations;
 using JK.Offer.Contracts;
@@ -89,8 +90,26 @@ public class OfferService : IOfferService
 
     public void Test()
     {
+        using var activity = Instrumentation.ActivitySource.StartActivity("OfferService.Test", ActivityKind.Internal);
+
+        _logger.LogInformation(
+            "ActivitySourceName={ActivitySourceName}, ActivityCreated={ActivityCreated}, CurrentTraceId={TraceId}",
+            Instrumentation.ActivitySource.Name,
+            activity != null,
+            Activity.Current?.TraceId.ToString());
+
+        for (int i = 0; i < 10; i++)
+        {
+            Instrumentation.TestCounter.Add(1);
+        }
+
+        activity?.AddEvent(new ActivityEvent("Starting Test"));
+        activity?.SetTag("TestTag", "TestTagValue");
+        activity?.SetTag("TestTag2", "TestTagValue2");
+        activity?.SetTag("TestTag3", "TestTagValue3");
         _logger.LogInformation("Starting test v2 from Offer Service");
         _logger.LogInformation("Test v2 from Offer Service");
         _logger.LogInformation("Test v2 from Offer Service completed");
+        activity?.AddEvent(new ActivityEvent("Ending Test"));
     }
 }

@@ -1,5 +1,6 @@
 using JK.Configuration.Provider;
 using JK.Platform.Core.AspNetCore.Discovery;
+using JK.Platform.Core.Observability;
 using JK.Platform.Http.Configurations;
 using JK.Platform.Rest.Server.Configurations;
 using JK.Platform.Rest.Swagger.Configurations;
@@ -21,13 +22,14 @@ builder.Services.AddPlatformCorrelation();
 builder.Services.AddPlatformCors(builder.Configuration);
 builder.Services.AddPlatformSwagger(builder.Configuration);
 builder.Services.AddHealthChecks();
+builder.Services.AddPlatformOpenTelemetry(builder.Configuration, builder.Environment);
 
 var moduleInstallerTypes = DomainDiscovery.FindModuleInstallerTypes();
 var installers = DomainDiscovery.CreateModuleInstallers(moduleInstallerTypes);
 
 foreach (var installer in installers)
 {
-    installer.RegisterServices(builder.Services, builder.Configuration);
+    installer.RegisterServices(builder.Services, builder.Configuration, builder.Environment);
     installer.RegisterControllers(mvcBuilder);
 }
 

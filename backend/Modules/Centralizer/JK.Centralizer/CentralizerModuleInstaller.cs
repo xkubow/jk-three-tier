@@ -5,6 +5,7 @@ using JK.Platform.Core.DependencyInjection;
 using JK.Platform.Grpc.Client.Factory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +15,7 @@ public class CentralizerModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "Centralizer";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment builderEnvironment)
     {
         var assembly = typeof(CentralizerAssemblyMarker).Assembly;
 

@@ -35,7 +35,8 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [-ay] [--wait | -w] [-t target[,target...]] [target ...]
 
-Imports selected *-local.tar images from the repo root into k3s, optionally applies
+Imports selected jk-*-<tag>.tar images from the repo root into k3s (tag from
+.backend-image-tag, colons in the tag become hyphens in the filename), optionally applies
 selected backend manifests rendered with the latest built image tag, updates backend
 Deployments to the latest built image tag when manifests are not applied, rollout
 restarts the requested workloads, optionally waits for rollout completion, then
@@ -131,12 +132,19 @@ is_deployable_app() {
   esac
 }
 
+image_tar_suffix() {
+  # Match build-backend-all.bat: ":" in tag -> "-" in archive name
+  printf '%s\n' "${IMAGE_TAG//:/-}"
+}
+
 image_tar_for() {
+  local suffix
+  suffix="$(image_tar_suffix)"
   case "$1" in
-    configuration) printf '%s\n' "jk-configuration-local.tar" ;;
-    messaging) printf '%s\n' "jk-messaging-local.tar" ;;
-    offer) printf '%s\n' "jk-offer-local.tar" ;;
-    order) printf '%s\n' "jk-order-local.tar" ;;
+    configuration) printf '%s\n' "jk-configuration-${suffix}.tar" ;;
+    messaging) printf '%s\n' "jk-messaging-${suffix}.tar" ;;
+    offer) printf '%s\n' "jk-offer-${suffix}.tar" ;;
+    order) printf '%s\n' "jk-order-${suffix}.tar" ;;
     *) return 1 ;;
   esac
 }

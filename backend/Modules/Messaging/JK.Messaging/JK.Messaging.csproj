@@ -41,6 +41,7 @@
     <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
     <ProjectReference Include="..\..\..\Platform\Database\JK.Platform.Database.Migrations\JK.Platform.Database.Migrations.csproj" />
     <ProjectReference Include="..\JK.Messaging.Database\JK.Messaging.Database.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Observability\JK.Platform.Core.Observability.csproj" />
   </ItemGroup>
 
 </Project>

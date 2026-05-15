@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
     <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
     <ProjectReference Include="..\..\Platform\Rest\JK.Platform.Rest.Swagger\JK.Platform.Rest.Swagger.csproj" />
+    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.Observability\JK.Platform.Core.Observability.csproj" />
   </ItemGroup>
 
 </Project>

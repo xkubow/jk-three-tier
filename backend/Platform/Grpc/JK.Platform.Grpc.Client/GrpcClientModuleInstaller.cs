@@ -1,6 +1,7 @@
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +11,7 @@ public sealed class GrpcClientModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "GrpcClient";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment builderEnvironment)
     {
         services.Configure<GrpcClientConfiguration>(configuration.GetSection("GrpcClientConfiguration"));
         services.RegisterInjectableServices(typeof(GrpcClientModuleInstaller).Assembly);

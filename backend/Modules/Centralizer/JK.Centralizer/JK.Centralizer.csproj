@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\Order\JK.Order.Contracts\JK.Order.Contracts.csproj" />
     <ProjectReference Include="..\..\Configuration\JK.Configuration.Client.Grpc\JK.Configuration.Client.Grpc.csproj" />
     <ProjectReference Include="..\..\Configuration\JK.Configuration.Contracts\JK.Configuration.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Observability\JK.Platform.Core.Observability.csproj" />
   </ItemGroup>
 
 </Project>

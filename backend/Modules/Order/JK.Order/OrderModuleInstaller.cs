@@ -10,6 +10,7 @@ using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class OrderModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "Order";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment builderEnvironment)
     {
         var localAssembly = typeof(OrderAssemblyMarker).Assembly;
         var databaseAssembly = typeof(OrderDatabaseMarker).Assembly;

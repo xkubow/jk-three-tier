@@ -9,6 +9,7 @@ using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ public class ConfigurationModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "Configuration";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment builderEnvironment)
     {
         var assembly = typeof(ConfigurationModuleInstaller).Assembly;
         var databaseAssembly = typeof(ConfigurationDatabaseMarker).Assembly;

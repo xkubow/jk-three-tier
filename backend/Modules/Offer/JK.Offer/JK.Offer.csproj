@@ -28,14 +28,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Persistence\JK.Platform.Core.Persistence.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Serilog\JK.Platform.Core.Serilog.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Grpc\JK.Platform.Grpc.Server\JK.Platform.Grpc.Server.csproj" />
     <ProjectReference Include="..\..\..\Platform\Http\JK.Platform.Http\JK.Platform.Http.csproj" />
     <ProjectReference Include="..\..\..\Platform\Persistance\JK.Platform.Persistence.EfCore\JK.Platform.Persistence.EfCore.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Swagger\JK.Platform.Rest.Swagger.csproj" />
     <ProjectReference Include="..\JK.Offer.Contracts\JK.Offer.Contracts.csproj" />
     <ProjectReference Include="..\JK.Offer.Proto\JK.Offer.Proto.csproj" />
     <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
     <ProjectReference Include="..\..\..\Platform\Rest\JK.Platform.Rest.Server\JK.Platform.Rest.Server\JK.Platform.Rest.Server.csproj" />
     <ProjectReference Include="..\..\..\Platform\Database\JK.Platform.Database.Migrations\JK.Platform.Database.Migrations.csproj" />
     <ProjectReference Include="..\JK.Offer.Database\JK.Offer.Database.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.Core.Observability\JK.Platform.Core.Observability.csproj" />
   </ItemGroup>
 
 </Project>

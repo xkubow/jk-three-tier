@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: offer
-          image: jk-offer:v3
+          image: jk-offer:v7
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -28,6 +28,10 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "K8s"
+            - name: OpenTelemetry__Enabled
+              value: "true"
+            - name: OpenTelemetry__OtlpEndpoint
+              value: "http://otel-collector-opentelemetry-collector.observability.svc.cluster.local:4317"
             - name: ASPNETCORE_URLS
               value: "http://+:8080"
             - name: ConnectionStrings__DefaultConnection

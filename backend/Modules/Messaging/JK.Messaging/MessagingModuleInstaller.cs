@@ -9,6 +9,7 @@ using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ public class MessagingModuleInstaller : IModuleInstaller
 {
     public string ModuleName => "Messaging";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment builderEnvironment)
     {
         var assembly = typeof(MessagingAssemblyMarker).Assembly;
         var databaseAssembly = typeof(MessagingDatabaseMarker).Assembly;
