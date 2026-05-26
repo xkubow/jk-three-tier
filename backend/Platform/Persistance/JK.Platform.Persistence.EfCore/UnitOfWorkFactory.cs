@@ -6,7 +6,7 @@ namespace JK.Platform.Persistence.EfCore;
 
 [Injectable(ServiceLifetime.Scoped)]
 public class UnitOfWorkFactory<TDbContext> : IUnitOfWorkFactory<TDbContext>
-    where TDbContext : DbContext
+    where TDbContext : DbContextBase
 {
     private readonly IServiceProvider _serviceProvider;
 

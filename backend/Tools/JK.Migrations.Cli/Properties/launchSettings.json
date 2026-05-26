@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "JK.Offer.Migrations": {
+      "commandName": "Project",
+      "commandLineArgs": "--connection \"Host=172.27.76.33;Port=30432;Database=jk_offer;Username=postgres;Password=6PostgresPassword\" --assembly \"C:/projects/jk-three-tier/backend/Modules/Offer/JK.Offer.Database/bin/Debug/net9.0/JK.Offer.Database.dll\" --ensure-db",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local-Dev"
+      }
+    }
+  }
+}

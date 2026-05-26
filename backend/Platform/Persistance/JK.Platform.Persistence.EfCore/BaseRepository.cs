@@ -6,11 +6,11 @@ public abstract class BaseRepository<TModel, TEntity, TKey> : IRepository<TModel
     where TModel : ModelBase<TKey>
     where TEntity : EntityBase<TKey>
 {
-    protected readonly DbContext Context;
+    protected readonly DbContextBase Context;
     protected readonly DbSet<TEntity> DbSet;
     protected readonly IMapper Mapper;
 
-    protected BaseRepository(DbContext context, IMapper mapper)
+    protected BaseRepository(DbContextBase context, IMapper mapper)
     {
         Context = context;
         DbSet = context.Set<TEntity>();

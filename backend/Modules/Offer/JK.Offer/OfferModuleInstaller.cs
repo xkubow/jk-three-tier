@@ -2,6 +2,7 @@ using FluentValidation;
 using JK.Offer.Configurations;
 using JK.Offer.Database;
 using JK.Offer.Grpc;
+using JK.Offer.Tasks.External;
 using JK.Platform.Core.Abstraction;
 using JK.Platform.Core.DependencyInjection;
 using JK.Platform.Core.Observability;
@@ -9,6 +10,7 @@ using JK.Platform.Core.Serilog.Extensions;
 using JK.Platform.Database.Migrations;
 using JK.Platform.Grpc.Server.Extensions;
 using JK.Platform.Http.Configurations;
+using JK.Platform.LongRunningTasks.Extensions;
 using JK.Platform.Persistence.EfCore.Extensions;
 using JK.Platform.Rest.Swagger.Configurations;
 using Microsoft.AspNetCore.Builder;
@@ -35,13 +37,18 @@ public class OfferModuleInstaller : IModuleInstaller
         services.AddPlatformSerilogConfigurator<OfferSerilogConfigurator>();
         services.AddDbContext<OfferDbContext>(options => { options.UseNpgsql(connectionString); });
 
-        services.AddBackendMigrations(connectionString, assembly, databaseAssembly);
+        services.AddBackendMigrations(connectionString, databaseAssembly);
 
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
         services.RegisterInjectableServices(assembly);
         services.AddUnitOfWork();
+        services.AddLongRunningTasks<OfferDbContext>(configuration, assembly);
+
+        services.Configure<FakeExternalOfferStoreOptions>(
+            configuration.GetSection(FakeExternalOfferStoreOptions.SectionName));
+        services.AddSingleton<IExternalOfferStore, FakeExternalOfferStore>();
 
         services.AddPlatformCorrelation();
         services.AddPlatformCors(configuration);
@@ -55,6 +62,7 @@ public class OfferModuleInstaller : IModuleInstaller
         metricsBuilder =>
         {
             metricsBuilder.AddMeter(Instrumentation.Meter.Name);
+            metricsBuilder.AddMeter("JK.Platform.LongRunningTasks");
         });
     }
 

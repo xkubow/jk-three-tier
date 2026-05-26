@@ -13,6 +13,7 @@ var connectionOption = new Option<string>(
 {
     IsRequired = true
 };
+connectionOption.AddAlias("-c");
 
 var assemblyOption = new Option<FileInfo>(
     name: "--assembly",
@@ -20,10 +21,12 @@ var assemblyOption = new Option<FileInfo>(
 {
     IsRequired = true
 };
+assemblyOption.AddAlias("-a");
 
 var ensureDbOption = new Option<bool>(
     name: "--ensure-db",
     description: "Creates the target database if it does not exist.");
+ensureDbOption.AddAlias("-e");
 
 var rootCommand = new RootCommand("JK Migration CLI tool");
 rootCommand.AddOption(connectionOption);
@@ -66,7 +69,14 @@ rootCommand.SetHandler((connection, assemblyFile, ensureDb) =>
             DbCreator.EnsureDbIsCreated(finalConnectionString);
         }
 
+        var resolver = new AssemblyDependencyResolver(assemblyFile.FullName);
         var loadContext = new AssemblyLoadContext("MigrationsContext", isCollectible: true);
+
+        loadContext.Resolving += (context, assemblyName) =>
+        {
+            var path = resolver.ResolveAssemblyToPath(assemblyName);
+            return path != null ? context.LoadFromAssemblyPath(path) : null;
+        };
 
         try
         {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace JK.Platform.Persistence.EfCore;
 
 public class UnitOfWork<TDbContext> : IUnitOfWork<TDbContext>
-    where TDbContext : DbContext
+    where TDbContext : DbContextBase
 {
     private readonly TDbContext _dbContext;
     private readonly IServiceProvider _serviceProvider;

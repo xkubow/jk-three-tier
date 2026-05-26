@@ -1,9 +1,10 @@
 using JK.Messaging.Database.Entities;
+using JK.Platform.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace JK.Messaging.Database;
 
-public class MessagingDbContext : DbContext
+public class MessagingDbContext : DbContextBase
 {
     public MessagingDbContext(DbContextOptions<MessagingDbContext> options)
         : base(options)

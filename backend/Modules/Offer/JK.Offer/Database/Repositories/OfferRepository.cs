@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using JK.Offer.Contracts;
 using JK.Offer.Database.Entities;
 using JK.Offer.Models;
+using JK.Offer.Tasks.External;
 using JK.Platform.Core.DependencyInjection.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,5 +67,57 @@ public class OfferRepository : BaseRepository<OfferModel, OfferEntity, Guid>, IO
             PageSize = pageSize,
             TotalCount = totalCount
         };
+    }
+
+    public async Task<(long Processed, long Failed)> UpsertExternalOffersBatchAsync(
+        IReadOnlyList<ExternalOfferDto> offers,
+        CancellationToken cancellationToken = default)
+    {
+        if (offers.Count == 0)
+            return (0, 0);
+
+        var numbers = offers.Select(o => o.Number).ToList();
+        var existing = await DbSet
+            .Where(o => numbers.Contains(o.Number))
+            .ToDictionaryAsync(o => o.Number, cancellationToken);
+
+        long processed = 0;
+        long failed = 0;
+        var now = DateTime.UtcNow;
+
+        foreach (var external in offers)
+        {
+            try
+            {
+                if (existing.TryGetValue(external.Number, out var entity))
+                {
+                    entity.TotalAmount = external.TotalAmount;
+                    entity.Status = external.Status;
+                    entity.ExpiresAt = external.ExpiresAt;
+                    entity.UpdatedAt = now;
+                }
+                else
+                {
+                    await DbSet.AddAsync(new OfferEntity
+                    {
+                        Id = Guid.NewGuid(),
+                        Number = external.Number,
+                        TotalAmount = external.TotalAmount,
+                        Status = external.Status,
+                        ExpiresAt = external.ExpiresAt,
+                        CreatedAt = now
+                    }, cancellationToken);
+                }
+
+                processed++;
+            }
+            catch
+            {
+                failed++;
+            }
+        }
+
+        await Context.SaveChangesAsync(cancellationToken);
+        return (processed, failed);
     }
 }

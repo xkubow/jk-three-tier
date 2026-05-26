@@ -11,4 +11,9 @@
     <PackageReference Include="FluentMigrator" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Platform\Database\JK.Platform.Database.Migrations\JK.Platform.Database.Migrations.csproj" />
+    <ProjectReference Include="..\..\..\Platform\Core\JK.Platform.LongRunningTasks.Database\JK.Platform.LongRunningTasks.Database.csproj" />
+  </ItemGroup>
+
 </Project>

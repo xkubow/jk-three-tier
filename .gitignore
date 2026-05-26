@@ -34,3 +34,4 @@ yarn-error.log*
 
 # Docker
 **/.docker/
+.backend-image-tag
