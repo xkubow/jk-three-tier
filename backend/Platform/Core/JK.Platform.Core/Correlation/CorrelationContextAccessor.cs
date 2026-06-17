@@ -1,5 +1,9 @@
+using JK.Platform.Core.DependencyInjection.Attributes;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace JK.Platform.Core.Correlation;
 
+[Injectable(ServiceLifetime.Singleton)]
 public sealed class CorrelationContextAccessor : ICorrelationContextAccessor
 {
     private readonly AsyncLocal<CorrelationHolder?> _currentCorrelation = new();

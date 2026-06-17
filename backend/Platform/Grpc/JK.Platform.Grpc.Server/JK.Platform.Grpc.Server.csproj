@@ -14,4 +14,8 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Core\JK.Platform.Core.Abstraction\JK.Platform.Core.Abstraction.csproj" />
+    </ItemGroup>
+
 </Project>

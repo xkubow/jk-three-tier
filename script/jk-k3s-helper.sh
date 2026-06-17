@@ -54,6 +54,13 @@ Commands:
   -svc, --services       Services in ${NS_APP} and ${NS_OBS}
   -events, --events      Recent events in ${NS_APP} (sorted by time)
 
+  -secret-keys, --secret-keys <name> [ns]
+                          List data keys in a Kubernetes Secret (default ns=${NS_APP})
+  -secret, --secret <name> <key> [ns]
+                          Print decoded value for one Secret key (default ns=${NS_APP})
+  -db-secret, --db-secret [ns]
+                          Convenience: print common keys from jk-db-secret (default ns=${NS_APP})
+
   -s, --scale <name> [n]
                           Scale workload in ${NS_APP} to n replicas (default n=1 if omitted).
                           <name> can be a Deployment, StatefulSet, or Pod name (Pods are resolved
@@ -108,6 +115,61 @@ show_scaled_to_zero() {
     echo "${sts}" | sed 's/^/  /'
   fi
   echo
+}
+
+decode_b64() {
+  # Works on GNU coreutils (Linux/WSL) and macOS; falls back to openssl if needed.
+  if base64 --help 2>/dev/null | grep -q -- '--decode'; then
+    base64 --decode
+    return 0
+  fi
+  if base64 -D </dev/null >/dev/null 2>&1; then
+    # macOS base64
+    base64 -D
+    return 0
+  fi
+  if base64 -d </dev/null >/dev/null 2>&1; then
+    base64 -d
+    return 0
+  fi
+  openssl base64 -d
+}
+
+cmd_secret_keys() {
+  local name="$1"
+  local ns="${2:-$NS_APP}"
+
+  kubectl get secret "${name}" -n "${ns}" -o jsonpath='{range $k,$v := .data}{ $k }{"\n"}{end}' | sort
+}
+
+cmd_secret() {
+  local name="$1"
+  local key="$2"
+  local ns="${3:-$NS_APP}"
+  local raw
+
+  raw=$(kubectl get secret "${name}" -n "${ns}" -o jsonpath="{.data.${key}}" 2>/dev/null || true)
+  if [[ -z "${raw}" ]]; then
+    echo "Secret '${name}' key '${key}' not found in namespace '${ns}'." >&2
+    echo "Available keys:" >&2
+    cmd_secret_keys "${name}" "${ns}" >&2 || true
+    return 1
+  fi
+
+  printf '%s' "${raw}" | decode_b64
+}
+
+cmd_db_secret() {
+  local ns="${1:-$NS_APP}"
+  local name="jk-db-secret"
+  local keys=(POSTGRES_PASSWORD CONFIGURATION_DB_CONNECTION_STRING ORDER_DB_CONNECTION_STRING OFFER_DB_CONNECTION_STRING MESSAGING_DB_CONNECTION_STRING)
+
+  for k in "${keys[@]}"; do
+    echo "=== ${name}.${k} (${ns}) ==="
+    cmd_secret "${name}" "${k}" "${ns}" || true
+    echo
+    echo
+  done
 }
 
 cmd_pods() {
@@ -428,6 +490,23 @@ main() {
       ;;
     -events | --events)
       cmd_events
+      ;;
+    -secret-keys | --secret-keys)
+      [[ $# -ge 1 ]] || {
+        echo "Usage: $(basename "$0") --secret-keys <name> [ns]" >&2
+        exit 1
+      }
+      cmd_secret_keys "$1" "${2:-$NS_APP}"
+      ;;
+    -secret | --secret)
+      [[ $# -ge 2 ]] || {
+        echo "Usage: $(basename "$0") --secret <name> <key> [ns]" >&2
+        exit 1
+      }
+      cmd_secret "$1" "$2" "${3:-$NS_APP}"
+      ;;
+    -db-secret | --db-secret)
+      cmd_db_secret "${1:-$NS_APP}"
       ;;
     -s | --scale)
       [[ $# -ge 1 ]] || {

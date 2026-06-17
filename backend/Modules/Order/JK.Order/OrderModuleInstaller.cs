@@ -38,16 +38,7 @@ public class OrderModuleInstaller : IModuleInstaller
         services.AddAutoMapper(localAssembly);
         services.AddValidatorsFromAssembly(localAssembly);
 
-        // Discover and register all injectable services from JK.* assemblies
-        var domainAssemblies = DomainDiscovery.FindDomainAssemblies();
-        foreach (var assembly in domainAssemblies)
-        {
-            services.RegisterInjectableServices(assembly);
-        }
-        services.RegisterInjectableServices(localAssembly);
         services.AddUnitOfWork();
-
-        // services.AddHealthChecks().AddNpgSql(connectionString);
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

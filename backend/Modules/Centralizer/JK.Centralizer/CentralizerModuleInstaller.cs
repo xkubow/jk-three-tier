@@ -21,9 +21,6 @@ public class CentralizerModuleInstaller : IModuleInstaller
 
         services.AddAutoMapper(assembly);
         
-        // Register services from this assembly marked with [Injectable]
-        services.RegisterInjectableServices(assembly);
-        
         // Register gRPC Clients for other modules
         var orderServiceUrl = configuration["GrpcClients:OrderService:Url"];
         if (!string.IsNullOrEmpty(orderServiceUrl))

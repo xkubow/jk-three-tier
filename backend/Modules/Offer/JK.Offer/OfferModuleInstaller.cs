@@ -42,7 +42,6 @@ public class OfferModuleInstaller : IModuleInstaller
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
-        services.RegisterInjectableServices(assembly);
         services.AddUnitOfWork();
         services.AddLongRunningTasks<OfferDbContext>(configuration, assembly);
 
@@ -50,11 +49,6 @@ public class OfferModuleInstaller : IModuleInstaller
             configuration.GetSection(FakeExternalOfferStoreOptions.SectionName));
         services.AddSingleton<IExternalOfferStore, FakeExternalOfferStore>();
 
-        services.AddPlatformCorrelation();
-        services.AddPlatformCors(configuration);
-        services.AddPlatformSwagger(configuration);
-        services.AddGrpcPlatform();
-        services.AddHealthChecks();
         services.AddPlatformOpenTelemetry(configuration, builderEnvironment, builder =>
         {
             builder.AddSource(Instrumentation.ActivitySource.Name);

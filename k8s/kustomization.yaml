@@ -6,6 +6,7 @@ resources:
   - postgres.yaml
   - configuration.yaml
   - order.yaml
+  - offer.yaml
   - messaging.yaml
   - frontend.yaml
   - ingress.yaml

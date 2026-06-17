@@ -1,4 +1,5 @@
 using System.Collections;
+using System.IO;
 using System.Reflection;
 using JK.Platform.Core.Abstraction;
 using Microsoft.Extensions.Logging;
@@ -8,9 +9,12 @@ namespace JK.Platform.Core.AspNetCore.Discovery;
 public static class DomainDiscovery
 {
     private const string AssemblyPrefix = "JK.";
+    private static bool _assembliesLoaded;
 
     public static IReadOnlyList<Type> FindModuleInstallerTypes(ILogger? logger = null)
     {
+        LoadAllDomainAssemblies();
+
         return AppDomain.CurrentDomain
             .GetAssemblies()
             .Where(a => !a.IsDynamic)
@@ -76,11 +80,39 @@ public static class DomainDiscovery
 
     public static IReadOnlyList<Assembly> FindDomainAssemblies(ILogger? logger = null)
     {
+        LoadAllDomainAssemblies();
+
         // This returns all loaded assemblies starting with "JK."
         return AppDomain.CurrentDomain
             .GetAssemblies()
             .Where(a => !a.IsDynamic)
             .Where(a => a.GetName().Name?.StartsWith(AssemblyPrefix, StringComparison.Ordinal) == true)
             .ToList();
+    }
+
+    private static void LoadAllDomainAssemblies()
+    {
+        if (_assembliesLoaded) return;
+
+        var loadedNames = AppDomain.CurrentDomain.GetAssemblies()
+            .Select(a => a.GetName().Name)
+            .Where(n => n != null)
+            .ToHashSet();
+
+        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        foreach (var file in Directory.GetFiles(baseDirectory, $"{AssemblyPrefix}*.dll"))
+        {
+            var name = Path.GetFileNameWithoutExtension(file);
+            if (!loadedNames.Contains(name))
+            {
+                try
+                {
+                    Assembly.LoadFrom(file);
+                }
+                catch { }
+            }
+        }
+
+        _assembliesLoaded = true;
     }
 }

@@ -36,9 +36,7 @@ public class MessagingModuleInstaller : IModuleInstaller
         services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
 
-        services.RegisterInjectableServices(assembly);
         services.AddUnitOfWork();
-
     }
 
     public void RegisterControllers(IMvcBuilder mvcBuilder)

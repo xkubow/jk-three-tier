@@ -17,8 +17,7 @@ public interface IStartupConfigurator
 
     void ConfigureMiddleware(IApplicationBuilder app, IConfiguration configuration);
 
-    void ConfigureEndpoints(
-        IEndpointRouteBuilder endpoints,
+    void ConfigureEndpoints(IEndpointRouteBuilder endpoints,
         IApplicationBuilder app,
         IConfiguration configuration);
 }
