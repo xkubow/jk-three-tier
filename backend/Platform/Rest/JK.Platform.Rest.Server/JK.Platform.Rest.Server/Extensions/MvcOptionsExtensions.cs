@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
-namespace JK.Platform.Rest.Server.Configurations;
+namespace JK.Platform.Rest.Server.Extensions;
 
 public static class MvcOptionsExtensions
 {

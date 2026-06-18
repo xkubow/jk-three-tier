@@ -10,19 +10,39 @@ public static class ServiceDiscovery
         this IServiceCollection services,
         Assembly assembly)
     {
-        var injectableTypes = SafeGetTypes(assembly)
+        var types = SafeGetTypes(assembly)
             .Where(t => t.IsClass && !t.IsAbstract)
-            .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<InjectableAttribute>() })
-            .Where(x => x.Attribute is not null)
             .ToList();
 
-        foreach (var item in injectableTypes)
-        {
-            var implementationType = NormalizeImplementationType(item.Type);
-            var serviceType = ResolveServiceType(item.Type);
-            var lifetime = item.Attribute!.Lifetime;
+        var registrations = new List<ServiceRegistration>();
 
-            services.Add(new ServiceDescriptor(serviceType, implementationType, lifetime));
+        foreach (var type in types)
+        {
+            var injectableAttribute = type.GetCustomAttribute<InjectableAttribute>();
+            if (injectableAttribute != null)
+            {
+                registrations.Add(new ServiceRegistration
+                {
+                    ImplementationType = type,
+                    InterfaceType = ResolveServiceType(type),
+                    Lifetime = injectableAttribute.Lifetime,
+                    Order = 0
+                });
+            }
+
+            var multipleInjectableAttribute = type.GetCustomAttribute<MultipleInjectableAttribute>();
+            if (multipleInjectableAttribute != null)
+            {
+                registrations.AddRange(multipleInjectableAttribute.ToServiceRegistration(type));
+            }
+        }
+
+        foreach (var reg in registrations.OrderBy(x => x.Order))
+        {
+            var implementationType = NormalizeImplementationType(reg.ImplementationType);
+            var serviceType = NormalizeServiceType(reg.InterfaceType);
+
+            services.Add(new ServiceDescriptor(serviceType, implementationType, reg.Lifetime));
         }
 
         return services;

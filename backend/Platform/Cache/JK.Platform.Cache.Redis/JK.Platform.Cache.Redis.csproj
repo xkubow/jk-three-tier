@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Core\JK.Platform.Core.Abstraction\JK.Platform.Core.Abstraction.csproj" />
+      <ProjectReference Include="..\..\Core\JK.Platform.Core.Cache\JK.Platform.Core.Cache.csproj" />
+      <ProjectReference Include="..\..\Core\JK.Platform.Core\JK.Platform.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="12.2.0" />
+    </ItemGroup>
+
+</Project>

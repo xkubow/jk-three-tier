@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JK.Platform.Rest.Server.Configurations;
+namespace JK.Platform.Rest.Server.Extensions;
 
 public static class JsonOptionsExtensions
 {
