@@ -16,13 +16,11 @@
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-    <PackageReference Include="StackExchange.Redis.Extensions.System.Text.Json" Version="12.2.0" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="12.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Platform\Cache\JK.Platform.Cache.Redis\JK.Platform.Cache.Redis.csproj" />
-    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.Cache\JK.Platform.Core.Cache.csproj" />
+    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.BlobStorage\JK.Platform.Core.BlobStorage.csproj" />
+    <ProjectReference Include="..\..\Platform\JK.Platform.Storage.Minio\JK.Platform.Storage.Minio.csproj" />
   </ItemGroup>
 
 </Project>

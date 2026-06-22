@@ -21,8 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Platform\DistributedLock\JK.Platform.DistributedLock.Redis\JK.Platform.DistributedLock.Redis.csproj" />
+    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.DistributedLock\JK.Platform.Core.DistributedLock.csproj" />
     <ProjectReference Include="..\..\Platform\Cache\JK.Platform.Cache.Redis\JK.Platform.Cache.Redis.csproj" />
-    <ProjectReference Include="..\..\Platform\Core\JK.Platform.Core.Cache\JK.Platform.Core.Cache.csproj" />
   </ItemGroup>
 
 </Project>

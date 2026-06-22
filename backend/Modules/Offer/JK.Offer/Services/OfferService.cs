@@ -2,14 +2,15 @@ using System.Diagnostics;
 using AutoMapper;
 using JK.Offer.Configurations;
 using JK.Offer.Contracts;
-using JK.Offer.Database.Repositories;
 using JK.Offer.Database;
-using JK.Platform.Persistence.EfCore;
+using JK.Offer.Database.Repositories;
 using JK.Offer.Models;
 using JK.Platform.Core.DependencyInjection.Attributes;
+using JK.Platform.Persistence.EfCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OfferServiceLogs = JK.Offer.Extensions.OfferServiceLogs;
 
 namespace JK.Offer.Services;
 
@@ -19,7 +20,7 @@ public class OfferService : IOfferService
     private readonly IUnitOfWork<OfferDbContext> _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IOptionsSnapshot<OfferConfiguration> _configuration;
-    private ILogger<OfferService> _logger;
+    private readonly ILogger<OfferService> _logger;
 
     public OfferService(IUnitOfWorkFactory<OfferDbContext> unitOfWorkFactory, IMapper mapper, IOptionsSnapshot<OfferConfiguration> configuration, ILogger<OfferService> logger)
     {
@@ -63,6 +64,7 @@ public class OfferService : IOfferService
 
     public async Task<OfferDto?> UpdateAsync(Guid id, UpdateOfferRequest request, CancellationToken cancellationToken = default)
     {
+        OfferServiceLogs.LogUpdateOffer(_logger, id, request.Status, request.TotalAmount, request.ExpiresAt);
         var model = await _unitOfWork.GetRepository<IOfferRepository>().GetByIdAsync(id, cancellationToken);
         if (model == null) return null;
 

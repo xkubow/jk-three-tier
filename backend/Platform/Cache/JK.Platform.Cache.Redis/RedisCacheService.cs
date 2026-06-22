@@ -1,12 +1,15 @@
 using JK.Platform.Cache.Redis.Configurations;
 using JK.Platform.Core.Cache;
+using JK.Platform.Core.DependencyInjection.Attributes;
 using JK.Platform.Core.Validations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace JK.Platform.Cache.Redis;
 
+[Injectable(ServiceLifetime.Singleton)]
 public class RedisCacheService(IRedisClient redisClient, ILogger<RedisCacheService> logger, IOptions<CacheConfiguration> options) : ICacheService
 {
     private readonly IRedisClient _redisClient = redisClient;
